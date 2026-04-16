@@ -15,5 +15,8 @@ public class Grupo{
 
     @Column(nullable = false, length = 50)
     private String nombre;
+
+    @Column(nullable = false, unique = true)
+    private String categoria;
 }
 

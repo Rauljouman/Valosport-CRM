@@ -10,6 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/usuarios")
+@CrossOrigin(origins = "http://localhost:5173")
 public class UsuarioController {
 
     @Autowired
@@ -18,19 +19,19 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
-    //Crear jugador
+    // Recibe los datos del front y los manda al service para registrar al socio y su equipo.
     @PostMapping
     public Usuario crear(@RequestBody Usuario nuevoUsuario) {
         return usuarioService.registrarUsuario(nuevoUsuario);
     }
 
-    //Listar jugadores
+    // Devuelve la lista completa de socios de la base de datos.
     @GetMapping
     public List<Usuario> listarTodos(){
         return usuarioRepository.findAll();
     }
 
-    //Actualizar jugador
+    // Busca al socio por ID y le pisa los datos con lo que mandamos desde el front.
     @PutMapping("/{id}")
     public Usuario actualizar(@PathVariable Long id, @RequestBody Usuario nuevosDatos) {
         return usuarioRepository.findById(id).map(usuarioExiste -> {
@@ -41,31 +42,28 @@ public class UsuarioController {
             usuarioExiste.setCuotaAnual(nuevosDatos.getCuotaAnual());
             usuarioExiste.setSaldoPendiente(nuevosDatos.getSaldoPendiente());
             usuarioExiste.setRutaDocumento(nuevosDatos.getRutaDocumento());
-            usuarioExiste.setRol(nuevosDatos.getRol());;
-
+            usuarioExiste.setRol(nuevosDatos.getRol());
             return usuarioRepository.save(usuarioExiste);
-        }).orElseThrow(() -> new RuntimeException("No he encontrado al jugador con ID: " + id));
+        }).orElseThrow(() -> new RuntimeException("No existe el jugador con ID: " + id));
     }
 
-    //Borrar jugador
+    // Borra al socio, pero antes chequea que no sea un ADMIN para no liarla.
     @DeleteMapping("/{id}")
     public String Eliminar(@PathVariable Long id) {
         Usuario usuarioBorrar = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no existe"));
-
-        // Imprime en la consola para espiar qué rol tiene el usuario realmente
-        System.out.println("Intentando borrar usuario con ROL: " + usuarioBorrar.getRol());
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
 
         if (usuarioBorrar.getRol() == TipoRol.ADMIN) {
-            throw new RuntimeException("No se puede borrar a un administrador por seguridad.");
+            throw new RuntimeException("Protección: No se puede borrar a un administrador.");
         }
 
         usuarioRepository.deleteById(id);
-        return "Usuario eliminado con éxito";
+        return "Usuario eliminado.";
     }
+
+    // Filtra y devuelve solo los socios que pertenecen a un equipo específico.
     @GetMapping("/por-equipo/{grupoId}")
     public List<Usuario> listarPorEquipo(@PathVariable Long grupoId) {
         return usuarioRepository.findByGrupoId(grupoId);
     }
-
 }

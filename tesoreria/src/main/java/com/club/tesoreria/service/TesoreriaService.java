@@ -5,7 +5,6 @@ import com.club.tesoreria.model.Usuario;
 import com.club.tesoreria.repository.TransaccionRepository;
 import com.club.tesoreria.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,49 +17,39 @@ public class TesoreriaService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    /* * Esta función centraliza el registro de cualquier movimiento de dinero.
-     * Aplica validaciones de seguridad y actualiza el saldo del jugador automáticamente.
-     */
-    @Transactional
+    // Registra el movimiento y, si es un pago de socio, le descuenta la deuda automáticamente.
+    @Transactional 
     public Transaccion registrarPago(Transaccion transaccion) {
 
-        // Valida que no se intenten registrar montos negativos o de cero euros
+        // Bloquea cualquier intento de meter cantidades negativas o a cero.
         if (transaccion.getCantidad() <= 0) {
-            throw new RuntimeException("Error: La cantidad debe ser mayor a 0.");
+            throw new RuntimeException("La cantidad debe ser positiva.");
         }
 
-        // Verifica si la transacción tiene un usuario asociado (es un pago de socio/jugador)
+        // Si el movimiento tiene un socio asignado, actualizamos su estado financiero.
         if (transaccion.getUsuario() != null && transaccion.getUsuario().getId() != null) {
 
-            // Recupera los datos completos del usuario desde la BD para conocer su deuda actual
             Usuario usuario = usuarioRepository.findById(transaccion.getUsuario().getId())
-                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                    .orElseThrow(() -> new RuntimeException("Socio no encontrado."));
 
-            // Regla de negocio: Impide que un jugador pague más dinero del que debe actualmente
+            // No permitimos que el socio pague más de lo que debe para evitar saldos a favor.
             if (transaccion.getCantidad() > usuario.getSaldoPendiente()) {
-                throw new RuntimeException("Error: El pago supera la deuda pendiente del jugador.");
+                throw new RuntimeException("El pago excede la deuda actual.");
             }
 
-
-            // Resta el monto recibido del saldo pendiente del jugador en memoria
+            // Resta el pago de la deuda pendiente y guarda al socio actualizado.
             usuario.setSaldoPendiente(usuario.getSaldoPendiente() - transaccion.getCantidad());
-
-            // Guarda al usuario con su nuevo saldo actualizado en la base de datos
             usuarioRepository.save(usuario);
         }
-        else {
-            //El sistema no bloquea el pago aunque la cuenta quede negativa.
-            System.out.println("Se ha registrado el movimiento " + transaccion.getTitulo());
-        }
 
-        // Registra la transacción en el historial de la tabla transacciones
+        // Guarda el registro de la transacción (el "ticket") en la base de datos.
         return transaccionRepository.save(transaccion);
     }
 
+    // Hace la suma de todos los ingresos y le resta los gastos para darnos el neto.
     public Double obtenerBalance(){
         double ingresosTotal = transaccionRepository.sumarIngreso();
         double retirosTotal = transaccionRepository.sumarRetiross();
-
         return ingresosTotal - retirosTotal;
     }
 }
