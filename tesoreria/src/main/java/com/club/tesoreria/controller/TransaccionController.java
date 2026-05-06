@@ -1,5 +1,6 @@
 package com.club.tesoreria.controller;
 
+import com.club.tesoreria.dto.CrearTransaccionDto;
 import com.club.tesoreria.model.Transaccion;
 import com.club.tesoreria.repository.TransaccionRepository;
 import com.club.tesoreria.service.TesoreriaService;
@@ -52,8 +53,8 @@ public class TransaccionController {
     }
 
     @PostMapping
-    public Transaccion crear(@Valid @RequestBody Transaccion transaccion) {
-        return tesoreriaService.registrarPago(transaccion);
+    public Transaccion crear(@Valid @RequestBody CrearTransaccionDto request) {
+        return tesoreriaService.registrarPago(request);
     }
 
     @GetMapping("/balance")

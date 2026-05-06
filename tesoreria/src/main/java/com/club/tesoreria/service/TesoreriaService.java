@@ -1,5 +1,6 @@
 package com.club.tesoreria.service;
 
+import com.club.tesoreria.dto.CrearTransaccionDto;
 import com.club.tesoreria.model.Jugador;
 import com.club.tesoreria.model.TipoTransaccion;
 import com.club.tesoreria.model.TipoTransaccionOrigen;
@@ -20,51 +21,59 @@ public class TesoreriaService {
     private JugadorRepository jugadorRepository;
 
     @Transactional
-    public Transaccion registrarPago(Transaccion transaccion) {
+    public Transaccion registrarPago(CrearTransaccionDto request) {
 
-        if (transaccion.getCantidad() == null || transaccion.getCantidad() <= 0) {
+        if (request.getCantidad() == null || request.getCantidad() <= 0) {
             throw new IllegalArgumentException("Error: La cantidad debe ser mayor a 0.");
         }
 
-        if (transaccion.getTipo() == null) {
+        if (request.getTipo() == null) {
             throw new IllegalArgumentException("Error: debes indicar el tipo de transacción.");
         }
 
-        if (transaccion.getOrigen() == null) {
+        if (request.getOrigen() == null) {
             throw new IllegalArgumentException("Error: debes indicar el origen de la transacción.");
         }
+
+        Transaccion transaccion = new Transaccion();
+        transaccion.setTitulo(request.getTitulo());
+        transaccion.setDescripcion(request.getDescripcion());
+        transaccion.setCantidad(request.getCantidad());
+        transaccion.setTipo(request.getTipo());
+        transaccion.setOrigen(request.getOrigen());
+        transaccion.setCategoria(request.getCategoria());
 
         double saldoActual = obtenerBalance();
         double saldoNuevo;
 
-        if (transaccion.getTipo() == TipoTransaccion.RETIRO) {
-            saldoNuevo = saldoActual - transaccion.getCantidad();
-        } else if (transaccion.getTipo() == TipoTransaccion.INGRESO) {
-            saldoNuevo = saldoActual + transaccion.getCantidad();
+        if (request.getTipo() == TipoTransaccion.RETIRO) {
+            saldoNuevo = saldoActual - request.getCantidad();
+        } else if (request.getTipo() == TipoTransaccion.INGRESO) {
+            saldoNuevo = saldoActual + request.getCantidad();
         } else {
             throw new IllegalArgumentException("Error: tipo de transacción no válido.");
         }
 
         transaccion.setSaldoGeneralDespues(saldoNuevo);
 
-        if (transaccion.getOrigen() == TipoTransaccionOrigen.JUGADOR) {
+        if (request.getOrigen() == TipoTransaccionOrigen.JUGADOR) {
 
-            if (transaccion.getTipo() != TipoTransaccion.INGRESO) {
+            if (request.getTipo() != TipoTransaccion.INGRESO) {
                 throw new IllegalArgumentException("Error: una transacción de jugador debe ser de tipo INGRESO.");
             }
 
-            if (transaccion.getJugador() == null || transaccion.getJugador().getId() == null) {
+            if (request.getJugadorId() == null) {
                 throw new IllegalArgumentException("Error: debes indicar el jugador.");
             }
 
-            Jugador jugador = jugadorRepository.findById(transaccion.getJugador().getId())
+            Jugador jugador = jugadorRepository.findById(request.getJugadorId())
                     .orElseThrow(() -> new RuntimeException("Jugador no encontrado"));
 
-            if (transaccion.getCantidad() > jugador.getSaldoPendiente()) {
+            if (request.getCantidad() > jugador.getSaldoPendiente()) {
                 throw new IllegalArgumentException("Error: El pago supera la deuda pendiente del jugador.");
             }
 
-            Double nuevoSaldoJugador = jugador.getSaldoPendiente() - transaccion.getCantidad();
+            Double nuevoSaldoJugador = jugador.getSaldoPendiente() - request.getCantidad();
 
             jugador.setSaldoPendiente(nuevoSaldoJugador);
             jugadorRepository.save(jugador);
