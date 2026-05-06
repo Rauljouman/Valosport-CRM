@@ -17,7 +17,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/grupos")
-@CrossOrigin(origins = "http://localhost:5173")
 public class GrupoController {
 
     @Autowired

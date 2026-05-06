@@ -1,9 +1,11 @@
 package com.club.tesoreria.service;
 
+import com.club.tesoreria.model.Jugador;
+import com.club.tesoreria.model.TipoTransaccion;
+import com.club.tesoreria.model.TipoTransaccionOrigen;
 import com.club.tesoreria.model.Transaccion;
-import com.club.tesoreria.model.Usuario;
+import com.club.tesoreria.repository.JugadorRepository;
 import com.club.tesoreria.repository.TransaccionRepository;
-import com.club.tesoreria.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,41 +17,82 @@ public class TesoreriaService {
     private TransaccionRepository transaccionRepository;
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private JugadorRepository jugadorRepository;
 
-    // Registra el movimiento y, si es un pago de socio, le descuenta la deuda automáticamente.
-    @Transactional 
+    @Transactional
     public Transaccion registrarPago(Transaccion transaccion) {
 
-        // Bloquea cualquier intento de meter cantidades negativas o a cero.
-        if (transaccion.getCantidad() <= 0) {
-            throw new RuntimeException("La cantidad debe ser positiva.");
+        if (transaccion.getCantidad() == null || transaccion.getCantidad() <= 0) {
+            throw new IllegalArgumentException("Error: La cantidad debe ser mayor a 0.");
         }
 
-        // Si el movimiento tiene un socio asignado, actualizamos su estado financiero.
-        if (transaccion.getUsuario() != null && transaccion.getUsuario().getId() != null) {
+        if (transaccion.getTipo() == null) {
+            throw new IllegalArgumentException("Error: debes indicar el tipo de transacción.");
+        }
 
-            Usuario usuario = usuarioRepository.findById(transaccion.getUsuario().getId())
-                    .orElseThrow(() -> new RuntimeException("Socio no encontrado."));
+        if (transaccion.getOrigen() == null) {
+            throw new IllegalArgumentException("Error: debes indicar el origen de la transacción.");
+        }
 
-            // No permitimos que el socio pague más de lo que debe para evitar saldos a favor.
-            if (transaccion.getCantidad() > usuario.getSaldoPendiente()) {
-                throw new RuntimeException("El pago excede la deuda actual.");
+        double saldoActual = obtenerBalance();
+        double saldoNuevo;
+
+        if (transaccion.getTipo() == TipoTransaccion.RETIRO) {
+            saldoNuevo = saldoActual - transaccion.getCantidad();
+        } else if (transaccion.getTipo() == TipoTransaccion.INGRESO) {
+            saldoNuevo = saldoActual + transaccion.getCantidad();
+        } else {
+            throw new IllegalArgumentException("Error: tipo de transacción no válido.");
+        }
+
+        transaccion.setSaldoGeneralDespues(saldoNuevo);
+
+        if (transaccion.getOrigen() == TipoTransaccionOrigen.JUGADOR) {
+
+            if (transaccion.getTipo() != TipoTransaccion.INGRESO) {
+                throw new IllegalArgumentException("Error: una transacción de jugador debe ser de tipo INGRESO.");
             }
 
-            // Resta el pago de la deuda pendiente y guarda al socio actualizado.
-            usuario.setSaldoPendiente(usuario.getSaldoPendiente() - transaccion.getCantidad());
-            usuarioRepository.save(usuario);
+            if (transaccion.getJugador() == null || transaccion.getJugador().getId() == null) {
+                throw new IllegalArgumentException("Error: debes indicar el jugador.");
+            }
+
+            Jugador jugador = jugadorRepository.findById(transaccion.getJugador().getId())
+                    .orElseThrow(() -> new RuntimeException("Jugador no encontrado"));
+
+            if (transaccion.getCantidad() > jugador.getSaldoPendiente()) {
+                throw new IllegalArgumentException("Error: El pago supera la deuda pendiente del jugador.");
+            }
+
+            Double nuevoSaldoJugador = jugador.getSaldoPendiente() - transaccion.getCantidad();
+
+            jugador.setSaldoPendiente(nuevoSaldoJugador);
+            jugadorRepository.save(jugador);
+
+            transaccion.setSaldoJugadorDespues(nuevoSaldoJugador);
+            transaccion.setJugador(jugador);
+
+        } else {
+            transaccion.setJugador(null);
+            transaccion.setSaldoJugadorDespues(null);
         }
 
-        // Guarda el registro de la transacción (el "ticket") en la base de datos.
         return transaccionRepository.save(transaccion);
     }
 
-    // Hace la suma de todos los ingresos y le resta los gastos para darnos el neto.
-    public Double obtenerBalance(){
-        double ingresosTotal = transaccionRepository.sumarIngreso();
-        double retirosTotal = transaccionRepository.sumarRetiross();
+    public Double obtenerBalance() {
+        Double ingresosTotal = transaccionRepository.sumarIngreso();
+        Double retirosTotal = transaccionRepository.sumarRetiros();
+
+        if (ingresosTotal == null) {
+            ingresosTotal = 0.0;
+        }
+
+        if (retirosTotal == null) {
+            retirosTotal = 0.0;
+        }
+        
+    
         return ingresosTotal - retirosTotal;
     }
 }
