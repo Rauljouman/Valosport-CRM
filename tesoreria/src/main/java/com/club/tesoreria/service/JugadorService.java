@@ -1,13 +1,12 @@
 package com.club.tesoreria.service;
 
+import com.club.tesoreria.dto.CrearJugadorDto;
 import com.club.tesoreria.model.Grupo;
 import com.club.tesoreria.model.Jugador;
 import com.club.tesoreria.repository.GrupoRepository;
 import com.club.tesoreria.repository.JugadorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class JugadorService {
@@ -18,15 +17,25 @@ public class JugadorService {
     @Autowired
     private GrupoRepository grupoRepository;
 
-    public Jugador registrarJugador(Jugador jugador) {
-        if (jugador.getGrupo() != null) {
-            String nombre = jugador.getGrupo().getNombre();
-            List<Grupo> grupoDB = grupoRepository.findByNombre(nombre);
-            if (!grupoDB.isEmpty()) {
-                jugador.setGrupo(grupoDB.get(0));
-            }
-        }
+    public Jugador registrarJugador(CrearJugadorDto request) {
+        Grupo grupo = grupoRepository.findById(request.getGrupoId()).orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
 
+        Jugador jugador = new Jugador();
+
+        jugador.setDni(request.getDni());
+        jugador.setNombre(request.getNombre());
+        jugador.setApellido(request.getApellido());
+        jugador.setEmail(request.getEmail());
+        jugador.setTelefono(request.getTelefono());
+        jugador.setDireccion(request.getDireccion());
+        jugador.setFechaNacimiento(request.getFechaNacimiento());
+        jugador.setCuotaAnual(request.getCuotaAnual());
+        jugador.setSaldoPendiente(request.getCuotaAnual());
+        jugador.setRutaDocumento(request.getRutaDocumento());
+        jugador.setRol(request.getRol());
+        jugador.setEstatus(request.getEstatus());
+        jugador.setGrupo(grupo);
+        
         return jugadorRepository.save(jugador);
     }
 
