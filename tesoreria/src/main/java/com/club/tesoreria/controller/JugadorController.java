@@ -1,6 +1,6 @@
 package com.club.tesoreria.controller;
 
-import com.club.tesoreria.dto.CrearJugadorDto;
+import com.club.tesoreria.dto.JugadorCrearDto;
 import com.club.tesoreria.model.Jugador;
 import com.club.tesoreria.model.TipoRol;
 import com.club.tesoreria.repository.JugadorRepository;
@@ -22,7 +22,7 @@ public class JugadorController {
     private JugadorService jugadorService;
 
     @PostMapping
-    public Jugador crear(@Valid @RequestBody CrearJugadorDto request) {
+    public Jugador crear(@Valid @RequestBody JugadorCrearDto request) {
         return jugadorService.registrarJugador(request);
     }
 

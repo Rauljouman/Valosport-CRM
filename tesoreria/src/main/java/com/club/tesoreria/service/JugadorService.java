@@ -1,6 +1,6 @@
 package com.club.tesoreria.service;
 
-import com.club.tesoreria.dto.CrearJugadorDto;
+import com.club.tesoreria.dto.JugadorCrearDto;
 import com.club.tesoreria.model.Grupo;
 import com.club.tesoreria.model.Jugador;
 import com.club.tesoreria.repository.GrupoRepository;
@@ -17,7 +17,7 @@ public class JugadorService {
     @Autowired
     private GrupoRepository grupoRepository;
 
-    public Jugador registrarJugador(CrearJugadorDto request) {
+    public Jugador registrarJugador(JugadorCrearDto request) {
         Grupo grupo = grupoRepository.findById(request.getGrupoId()).orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
 
         Jugador jugador = new Jugador();
