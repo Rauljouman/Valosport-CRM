@@ -1,6 +1,7 @@
 package com.club.tesoreria.service;
 
-import com.club.tesoreria.dto.CrearTransaccionDto;
+import com.club.tesoreria.dto.TransaccionFiltroDto;
+import com.club.tesoreria.dto.TransaccionCrearDto;
 import com.club.tesoreria.model.Jugador;
 import com.club.tesoreria.model.TipoTransaccion;
 import com.club.tesoreria.model.TipoTransaccionOrigen;
@@ -10,6 +11,9 @@ import com.club.tesoreria.repository.TransaccionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.club.tesoreria.specification.TransaccionSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class TesoreriaService {
@@ -21,7 +25,7 @@ public class TesoreriaService {
     private JugadorRepository jugadorRepository;
 
     @Transactional
-    public Transaccion registrarPago(CrearTransaccionDto request) {
+    public Transaccion registrarPago(TransaccionCrearDto request) {
 
         if (request.getCantidad() == null || request.getCantidad() <= 0) {
             throw new IllegalArgumentException("Error: La cantidad debe ser mayor a 0.");
@@ -88,6 +92,13 @@ public class TesoreriaService {
 
         return transaccionRepository.save(transaccion);
     }
+
+    public Page<Transaccion> filtrarTransacciones(TransaccionFiltroDto filtro, Pageable pageable) {
+    return transaccionRepository.findAll(
+            TransaccionSpecification.filtrar(filtro),
+            pageable
+    );
+}
 
     public Double obtenerBalance() {
         Double ingresosTotal = transaccionRepository.sumarIngreso();
