@@ -1,13 +1,18 @@
 package com.club.tesoreria.controller;
 
 import com.club.tesoreria.dto.JugadorCrearDto;
+import com.club.tesoreria.dto.JugadorFiltroDto;
 import com.club.tesoreria.model.Jugador;
+import com.club.tesoreria.model.TipoEstatus;
 import com.club.tesoreria.model.TipoRol;
 import com.club.tesoreria.repository.JugadorRepository;
 import com.club.tesoreria.service.JugadorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -64,5 +69,32 @@ public class JugadorController {
     @GetMapping("/por-equipo/{grupoId}")
     public List<Jugador> listarPorEquipo(@PathVariable Long grupoId) {
         return jugadorRepository.findByGrupoId(grupoId);
+    }
+
+    @GetMapping("/filtrar")
+    public Page<Jugador> filtrarJugadores(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String apellido,
+            @RequestParam(required = false) String dni,
+            @RequestParam(required = false) Long grupoId,
+            @RequestParam(required = false) TipoEstatus estatus,
+            @RequestParam(required = false) TipoRol rol,
+            @RequestParam(required = false) Boolean conDeuda,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+    JugadorFiltroDto filtro = new JugadorFiltroDto();
+
+        filtro.setNombre(nombre);
+        filtro.setApellido(apellido);
+        filtro.setDni(dni);
+        filtro.setGrupoId(grupoId);
+        filtro.setEstatus(estatus);
+        filtro.setRol(rol);
+        filtro.setConDeuda(conDeuda);
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return jugadorService.filtrarJugadores(filtro, pageable);
     }
 }

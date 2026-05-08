@@ -1,10 +1,15 @@
 package com.club.tesoreria.service;
 
 import com.club.tesoreria.dto.JugadorCrearDto;
+import com.club.tesoreria.dto.JugadorFiltroDto;
 import com.club.tesoreria.model.Grupo;
 import com.club.tesoreria.model.Jugador;
 import com.club.tesoreria.repository.GrupoRepository;
 import com.club.tesoreria.repository.JugadorRepository;
+import com.club.tesoreria.specification.JugadorSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,5 +57,12 @@ public class JugadorService {
         }
 
         return jugadorRepository.save(jugador);
+    }
+
+    public Page<Jugador> filtrarJugadores(JugadorFiltroDto filtro, Pageable pageable) {
+        return jugadorRepository.findAll(
+                JugadorSpecification.filtrar(filtro),
+                pageable
+        );
     }
 }
