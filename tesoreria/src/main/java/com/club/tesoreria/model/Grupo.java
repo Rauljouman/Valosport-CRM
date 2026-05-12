@@ -6,7 +6,6 @@ import lombok.Data;
 @Entity
 @Table(name = "grupos")
 @Data
-
 public class Grupo{
     //Primary key y Auto-increment
     @Id
@@ -15,5 +14,8 @@ public class Grupo{
 
     @Column(nullable = false, length = 50)
     private String nombre;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Club club;  
 }
 

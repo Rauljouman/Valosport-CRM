@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = "jugador")
+@ToString(exclude = {"jugador", "club"})
 public class Transaccion {
 
     @Id
@@ -58,10 +58,14 @@ public class Transaccion {
     @Column(nullable = false)
     private TipoTransaccionCategoria categoria;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "jugador_id")
     @JsonIgnoreProperties("transacciones")
     private Jugador jugador;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "club_id", nullable = false)
+    private Club club;
 
     @PrePersist
     protected void onCreate() {
