@@ -2,6 +2,7 @@ package com.club.tesoreria.controller;
 
 import com.club.tesoreria.dto.JugadorCrearDto;
 import com.club.tesoreria.dto.JugadorFiltroDto;
+import com.club.tesoreria.dto.JugadorResponseDto;
 import com.club.tesoreria.model.Jugador;
 import com.club.tesoreria.model.TipoEstatus;
 import com.club.tesoreria.model.TipoRol;
@@ -32,8 +33,8 @@ public class JugadorController {
     }
 
     @GetMapping
-    public List<Jugador> listarTodos() {
-        return jugadorRepository.findAll();
+    public List<JugadorResponseDto> listarTodos() {
+        return jugadorService.listarJugadores();
     }
 
     @PutMapping("/{id}")
