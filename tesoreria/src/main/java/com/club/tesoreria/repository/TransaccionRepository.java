@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,6 +29,12 @@ public interface TransaccionRepository extends JpaRepository<Transaccion, Long>,
 
     @Query("SELECT SUM(t.cantidad) FROM Transaccion t WHERE t.tipo = 'RETIRO'")
     Double sumarRetiros();
+
+    @Query("SELECT SUM(t.cantidad) FROM Transaccion t WHERE t.tipo = 'INGRESO'")
+    Double sumarIngresoClub(@Param("clubId") Long clubId);
+
+    @Query("SELECT SUM(t.cantidad) FROM Transaccion t WHERE t.tipo = 'RETIRO'")
+    Double sumarRetirosClub(@Param("clubId") Long clubId);
 
     @Modifying
     @Transactional

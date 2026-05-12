@@ -6,6 +6,8 @@ import com.club.tesoreria.model.Jugador;
 import com.club.tesoreria.model.TipoTransaccion;
 import com.club.tesoreria.model.TipoTransaccionOrigen;
 import com.club.tesoreria.model.Transaccion;
+import com.club.tesoreria.model.Club;
+import com.club.tesoreria.repository.ClubRepository;
 import com.club.tesoreria.repository.JugadorRepository;
 import com.club.tesoreria.repository.TransaccionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ import org.springframework.data.domain.Pageable;
 public class TesoreriaService {
 
     @Autowired
+    private ClubRepository clubRepository;
+
+    @Autowired
     private TransaccionRepository transaccionRepository;
 
     @Autowired
@@ -26,6 +31,9 @@ public class TesoreriaService {
 
     @Transactional
     public Transaccion registrarPago(TransaccionCrearDto request) {
+
+        Club club = clubRepository.findById(request.getClubId())
+        .orElseThrow(() -> new RuntimeException("Club no encontrado"));
 
         if (request.getCantidad() == null || request.getCantidad() <= 0) {
             throw new IllegalArgumentException("Error: La cantidad debe ser mayor a 0.");
@@ -46,8 +54,9 @@ public class TesoreriaService {
         transaccion.setTipo(request.getTipo());
         transaccion.setOrigen(request.getOrigen());
         transaccion.setCategoria(request.getCategoria());
+        transaccion.setClub(club);
 
-        double saldoActual = obtenerBalance();
+        double saldoActual = obtenerBalanceClub(club.getId());
         double saldoNuevo;
 
         if (request.getTipo() == TipoTransaccion.RETIRO) {
@@ -62,16 +71,20 @@ public class TesoreriaService {
 
         if (request.getOrigen() == TipoTransaccionOrigen.JUGADOR) {
 
+            Jugador jugador = jugadorRepository.findById(request.getJugadorId())
+                    .orElseThrow(() -> new RuntimeException("Jugador no encontrado"));
+
             if (request.getTipo() != TipoTransaccion.INGRESO) {
                 throw new IllegalArgumentException("Error: una transacción de jugador debe ser de tipo INGRESO.");
+            }
+
+            if(!jugador.getClub().getId().equals(club.getId())){
+                throw new IllegalArgumentException("Error: el jugador no pertenece al club indicado.");
             }
 
             if (request.getJugadorId() == null) {
                 throw new IllegalArgumentException("Error: debes indicar el jugador.");
             }
-
-            Jugador jugador = jugadorRepository.findById(request.getJugadorId())
-                    .orElseThrow(() -> new RuntimeException("Jugador no encontrado"));
 
             if (request.getCantidad() > jugador.getSaldoPendiente()) {
                 throw new IllegalArgumentException("Error: El pago supera la deuda pendiente del jugador.");
@@ -111,8 +124,20 @@ public class TesoreriaService {
         if (retirosTotal == null) {
             retirosTotal = 0.0;
         }
-        
-    
+        return ingresosTotal - retirosTotal;
+    }
+
+    public Double obtenerBalanceClub(Long clubId) {
+        Double ingresosTotal = transaccionRepository.sumarIngresoClub(clubId);
+        Double retirosTotal = transaccionRepository.sumarRetirosClub(clubId);
+
+        if (ingresosTotal == null) {
+            ingresosTotal = 0.0;
+        }
+
+        if (retirosTotal == null) {
+            retirosTotal = 0.0;
+        }
         return ingresosTotal - retirosTotal;
     }
 }

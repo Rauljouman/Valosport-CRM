@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/jugadores")
 public class JugadorController {
-
+    
     @Autowired
     private JugadorRepository jugadorRepository;
 

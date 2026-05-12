@@ -70,11 +70,15 @@ public class Jugador {
     private TipoEstatus estatus;
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "grupo_id", nullable = false)
     private Grupo grupo;
 
     @OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("jugador")
     private List<Transaccion> transacciones = new java.util.ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "club_id", nullable = false)
+    private Club club;
 }

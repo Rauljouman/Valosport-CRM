@@ -2,8 +2,10 @@ package com.club.tesoreria.service;
 
 import com.club.tesoreria.dto.JugadorCrearDto;
 import com.club.tesoreria.dto.JugadorFiltroDto;
+import com.club.tesoreria.model.Club;
 import com.club.tesoreria.model.Grupo;
 import com.club.tesoreria.model.Jugador;
+import com.club.tesoreria.repository.ClubRepository;
 import com.club.tesoreria.repository.GrupoRepository;
 import com.club.tesoreria.repository.JugadorRepository;
 import com.club.tesoreria.specification.JugadorSpecification;
@@ -22,8 +24,21 @@ public class JugadorService {
     @Autowired
     private GrupoRepository grupoRepository;
 
+    @Autowired
+    private ClubRepository clubRepository;
+
+
     public Jugador registrarJugador(JugadorCrearDto request) {
-        Grupo grupo = grupoRepository.findById(request.getGrupoId()).orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
+
+        Club club = clubRepository.findById(request.getClubId())
+        .orElseThrow(() -> new RuntimeException("Club no encontrado"));
+
+        Grupo grupo = grupoRepository.findById(request.getGrupoId())
+        .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
+
+        if (!grupo.getClub().getId().equals(club.getId())) {
+            throw new RuntimeException("El grupo no pertenece al club indicado.");
+        }
 
         Jugador jugador = new Jugador();
 
@@ -40,6 +55,7 @@ public class JugadorService {
         jugador.setRol(request.getRol());
         jugador.setEstatus(request.getEstatus());
         jugador.setGrupo(grupo);
+        jugador.setClub(club);
         
         return jugadorRepository.save(jugador);
     }

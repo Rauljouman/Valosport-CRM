@@ -1,19 +1,14 @@
 package com.club.tesoreria.controller;
 
+import com.club.tesoreria.dto.GrupoCrearDto;
 import com.club.tesoreria.model.Grupo;
-import com.club.tesoreria.model.Transaccion;
 import com.club.tesoreria.repository.GrupoRepository;
-import com.club.tesoreria.repository.TransaccionRepository;
-import com.club.tesoreria.service.TesoreriaService;
+import com.club.tesoreria.service.GrupoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/grupos")
@@ -21,6 +16,9 @@ public class GrupoController {
 
     @Autowired
     private GrupoRepository grupoRepository;
+
+    @Autowired
+    private GrupoService grupoService;
 
     @GetMapping
     public List<Grupo> listar(@RequestParam(required = false) String nombre) {
@@ -31,13 +29,12 @@ public class GrupoController {
     }
 
     @PostMapping
-    public Grupo crearGrupo(@RequestBody Grupo grupo){
-        return grupoRepository.save(grupo);
+    public Grupo crearGrupo(@Valid @RequestBody GrupoCrearDto request) {
+        return grupoService.crearGrupo(request);
     }
 
     @DeleteMapping("/{id}")
-    public void eliminar( @PathVariable Long id){
+    public void eliminar(@PathVariable Long id) {
         grupoRepository.deleteById(id);
     }
-
 }
