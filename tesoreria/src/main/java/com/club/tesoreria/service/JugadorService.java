@@ -2,6 +2,7 @@ package com.club.tesoreria.service;
 
 import com.club.tesoreria.dto.JugadorCrearDto;
 import com.club.tesoreria.dto.JugadorFiltroDto;
+import com.club.tesoreria.dto.JugadorResponseDto;
 import com.club.tesoreria.model.Club;
 import com.club.tesoreria.model.Grupo;
 import com.club.tesoreria.model.Jugador;
@@ -11,6 +12,7 @@ import com.club.tesoreria.repository.JugadorRepository;
 import com.club.tesoreria.specification.JugadorSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -80,5 +82,31 @@ public class JugadorService {
                 JugadorSpecification.filtrar(filtro),
                 pageable
         );
+    }
+
+    private JugadorResponseDto convertirAResponseDto(Jugador jugador) {
+    return new JugadorResponseDto(
+                jugador.getId(),
+                jugador.getDni(),
+                jugador.getNombre(),
+                jugador.getApellido(),
+                jugador.getEmail(),
+                jugador.getTelefono(),
+                jugador.getCuotaAnual(),
+                jugador.getSaldoPendiente(),
+                jugador.getRol(),
+                jugador.getEstatus(),
+                jugador.getGrupo() != null ? jugador.getGrupo().getId() : null,
+                jugador.getGrupo() != null ? jugador.getGrupo().getNombre() : null,
+                jugador.getClub() != null ? jugador.getClub().getId() : null,
+                jugador.getClub() != null ? jugador.getClub().getNombre() : null
+        );
+    }
+
+    public List<JugadorResponseDto> listarJugadores() {
+        return jugadorRepository.findAll()
+                .stream()
+                .map(this::convertirAResponseDto)
+                .toList();
     }
 }

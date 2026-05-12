@@ -6,7 +6,6 @@ import com.club.tesoreria.model.TipoTransaccion;
 import com.club.tesoreria.model.TipoTransaccionCategoria;
 import com.club.tesoreria.model.TipoTransaccionOrigen;
 import com.club.tesoreria.model.Transaccion;
-import com.club.tesoreria.repository.TransaccionRepository;
 import com.club.tesoreria.service.TesoreriaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -21,9 +20,6 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/api/transacciones")
 public class TransaccionController {
-
-    @Autowired
-    private TransaccionRepository transaccionRepository;
 
     @Autowired
     private TesoreriaService tesoreriaService;
@@ -65,7 +61,7 @@ public class TransaccionController {
     }
 
     @GetMapping("/balance")
-    public Double verBalanceTotal() {
-        return tesoreriaService.obtenerBalance();
+    public Double verBalanceTotalClub(@RequestParam Long clubId) {
+        return tesoreriaService.obtenerBalanceClub(clubId);
     }
 }
