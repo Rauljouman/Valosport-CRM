@@ -21,7 +21,10 @@ public class UsuarioSistema {
     private String passwordHash;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private TipoRolSistema rol;
-}
-    
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "club_id", nullable = false)
+    private Club club;
+}

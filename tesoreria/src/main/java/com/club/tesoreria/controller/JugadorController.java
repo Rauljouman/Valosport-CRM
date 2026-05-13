@@ -33,7 +33,13 @@ public class JugadorController {
     }
 
     @GetMapping
-    public List<JugadorResponseDto> listarTodos() {
+    public List<JugadorResponseDto> listarTodos(
+            @RequestParam(required = false) Long clubId
+    ) {
+        if (clubId != null) {
+            return jugadorService.listarJugadoresPorClub(clubId);
+        }
+
         return jugadorService.listarJugadores();
     }
 
@@ -50,7 +56,7 @@ public class JugadorController {
             jugadorExiste.setCuotaAnual(nuevosDatos.getCuotaAnual());
             jugadorExiste.setSaldoPendiente(nuevosDatos.getSaldoPendiente());
             jugadorExiste.setRutaDocumento(nuevosDatos.getRutaDocumento());
-            jugadorExiste.setRol(nuevosDatos.getRol());
+            jugadorExiste.setRol(nuevosDatos.getRol()); 
             jugadorExiste.setEstatus(nuevosDatos.getEstatus());
             jugadorExiste.setGrupo(nuevosDatos.getGrupo());
 
