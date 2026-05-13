@@ -1,6 +1,7 @@
 package com.club.tesoreria.controller;
 
 import com.club.tesoreria.dto.GrupoCrearDto;
+import com.club.tesoreria.dto.GrupoResponseDto;
 import com.club.tesoreria.model.Grupo;
 import com.club.tesoreria.repository.GrupoRepository;
 import com.club.tesoreria.service.GrupoService;
@@ -21,15 +22,12 @@ public class GrupoController {
     private GrupoService grupoService;
 
     @GetMapping
-    public List<Grupo> listar(@RequestParam(required = false) String nombre) {
-        if (nombre != null) {
-            return grupoRepository.findByNombre(nombre);
-        }
-        return grupoRepository.findAll();
+    public List<GrupoResponseDto> listar() {
+        return grupoService.listarGruposDelUsuario();
     }
 
     @PostMapping
-    public Grupo crearGrupo(@Valid @RequestBody GrupoCrearDto request) {
+    public GrupoResponseDto crearGrupo(@Valid @RequestBody GrupoCrearDto request) {
         return grupoService.crearGrupo(request);
     }
 

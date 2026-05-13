@@ -8,5 +8,7 @@ import java.util.List;
 public interface GrupoRepository extends JpaRepository<Grupo, Long> {
 
     List<Grupo> findByNombre(String nombre);
+
+    List<Grupo> findByClubId(Long clubId);
 }
 

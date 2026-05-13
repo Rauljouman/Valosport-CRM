@@ -11,5 +11,6 @@ import java.util.List;
 public interface JugadorRepository extends JpaRepository<Jugador, Long>, JpaSpecificationExecutor<Jugador> {
     
     List<Jugador> findByGrupoId(Long grupoId);
-    
+
+    List<Jugador> findByClubId(Long clubId);
 }

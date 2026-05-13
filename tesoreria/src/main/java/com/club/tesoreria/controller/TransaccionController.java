@@ -35,6 +35,7 @@ public class TransaccionController {
             @RequestParam(required = false) Double cantidadMin,
             @RequestParam(required = false) Double cantidadMax,
             @RequestParam(required = false) String titulo,
+            @RequestParam(required = false) Long clubId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -49,6 +50,7 @@ public class TransaccionController {
         filtro.setCantidadMin(cantidadMin);
         filtro.setCantidadMax(cantidadMax);
         filtro.setTitulo(titulo);
+        filtro.setClubId(clubId);
 
         Pageable pageable = PageRequest.of(page, size);
 

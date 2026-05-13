@@ -104,7 +104,14 @@ public class JugadorService {
     }
 
     public List<JugadorResponseDto> listarJugadores() {
-        return jugadorRepository.findAll()
+    return jugadorRepository.findAll()
+            .stream()
+            .map(this::convertirAResponseDto)
+            .toList();
+    }
+
+    public List<JugadorResponseDto> listarJugadoresPorClub(Long clubId) {
+        return jugadorRepository.findByClubId(clubId)
                 .stream()
                 .map(this::convertirAResponseDto)
                 .toList();
