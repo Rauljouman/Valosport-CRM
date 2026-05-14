@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -28,16 +29,19 @@ public class JugadorController {
     private JugadorService jugadorService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR')")
     public JugadorResponseDto crear(@Valid @RequestBody JugadorCrearDto request) {
         return jugadorService.registrarJugador(request);
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR', 'TESORERO')")
     public List<JugadorResponseDto> listarTodos(){
         return jugadorService.listarJugadores();
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR')")
     public Jugador actualizar(@PathVariable Long id, @RequestBody Jugador nuevosDatos) {
         return jugadorRepository.findById(id).map(jugadorExiste -> {
             jugadorExiste.setDni(nuevosDatos.getDni());
@@ -59,20 +63,24 @@ public class JugadorController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public String eliminar(@PathVariable Long id) {
-        Jugador jugadorBorrar = jugadorRepository.findById(id)
+        jugadorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Jugador no existe"));
 
         jugadorRepository.deleteById(id);
         return "Jugador eliminado con éxito";
     }
+        
 
     @GetMapping("/por-equipo/{grupoId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR', 'TESORERO')")
     public List<Jugador> listarPorEquipo(@PathVariable Long grupoId) {
         return jugadorRepository.findByGrupoId(grupoId);
     }
 
     @GetMapping("/filtrar")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR', 'TESORERO')")
     public Page<Jugador> filtrarJugadores(
             @RequestParam(required = false) String nombre,
             @RequestParam(required = false) String apellido,

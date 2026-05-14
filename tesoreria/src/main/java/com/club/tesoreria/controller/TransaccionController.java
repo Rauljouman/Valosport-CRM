@@ -10,6 +10,7 @@ import com.club.tesoreria.service.TesoreriaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,7 @@ public class TransaccionController {
     private TesoreriaService tesoreriaService;
 
     @GetMapping("/filtrar")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TESORERO')")
     public Page<TransaccionResponseDto> filtrarTransacciones(
             @RequestParam(required = false) TipoTransaccion tipo,
             @RequestParam(required = false) TipoTransaccionOrigen origen,
@@ -35,7 +37,6 @@ public class TransaccionController {
             @RequestParam(required = false) Double cantidadMin,
             @RequestParam(required = false) Double cantidadMax,
             @RequestParam(required = false) String titulo,
-            @RequestParam(required = false) Long clubId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -57,11 +58,13 @@ public class TransaccionController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'TESORERO')")
     public TransaccionResponseDto crear(@Valid @RequestBody TransaccionCrearDto request) {
         return tesoreriaService.registrarPago(request);
     }
 
     @GetMapping("/balance")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TESORERO')")
     public Double verBalanceTotalClub() {
         return tesoreriaService.obtenerBalanceClubUsuarioActual();
     }
