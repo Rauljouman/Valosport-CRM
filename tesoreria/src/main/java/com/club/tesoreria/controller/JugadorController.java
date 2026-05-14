@@ -28,18 +28,12 @@ public class JugadorController {
     private JugadorService jugadorService;
 
     @PostMapping
-    public Jugador crear(@Valid @RequestBody JugadorCrearDto request) {
+    public JugadorResponseDto crear(@Valid @RequestBody JugadorCrearDto request) {
         return jugadorService.registrarJugador(request);
     }
 
     @GetMapping
-    public List<JugadorResponseDto> listarTodos(
-            @RequestParam(required = false) Long clubId
-    ) {
-        if (clubId != null) {
-            return jugadorService.listarJugadoresPorClub(clubId);
-        }
-
+    public List<JugadorResponseDto> listarTodos(){
         return jugadorService.listarJugadores();
     }
 
