@@ -9,6 +9,7 @@ import com.club.tesoreria.model.Jugador;
 import com.club.tesoreria.repository.ClubRepository;
 import com.club.tesoreria.repository.GrupoRepository;
 import com.club.tesoreria.repository.JugadorRepository;
+import com.club.tesoreria.security.AuthenticatedUserService;
 import com.club.tesoreria.specification.JugadorSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,9 @@ import org.springframework.stereotype.Service;
 public class JugadorService {
 
     @Autowired
+    private AuthenticatedUserService authenticatedUserService;
+
+    @Autowired
     private JugadorRepository jugadorRepository;
 
     @Autowired
@@ -30,10 +34,9 @@ public class JugadorService {
     private ClubRepository clubRepository;
 
 
-    public Jugador registrarJugador(JugadorCrearDto request) {
+    public JugadorResponseDto registrarJugador(JugadorCrearDto request) {
 
-        Club club = clubRepository.findById(request.getClubId())
-        .orElseThrow(() -> new RuntimeException("Club no encontrado"));
+        Club club = authenticatedUserService.getUsuarioActual().getClub();
 
         Grupo grupo = grupoRepository.findById(request.getGrupoId())
         .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
@@ -59,7 +62,8 @@ public class JugadorService {
         jugador.setGrupo(grupo);
         jugador.setClub(club);
         
-        return jugadorRepository.save(jugador);
+        Jugador jugadorGuardado = jugadorRepository.save(jugador);
+        return convertirAResponseDto(jugadorGuardado);
     }
 
     public Jugador asignarJugador(Long jugadorId, Long grupoId) {
@@ -85,7 +89,7 @@ public class JugadorService {
     }
 
     private JugadorResponseDto convertirAResponseDto(Jugador jugador) {
-    return new JugadorResponseDto(
+        return new JugadorResponseDto(
                 jugador.getId(),
                 jugador.getDni(),
                 jugador.getNombre(),
@@ -103,8 +107,11 @@ public class JugadorService {
         );
     }
 
+
     public List<JugadorResponseDto> listarJugadores() {
-    return jugadorRepository.findAll()
+        Long clubId = authenticatedUserService.getClubIdActual();
+
+    return jugadorRepository.findByClubId(clubId)
             .stream()
             .map(this::convertirAResponseDto)
             .toList();
