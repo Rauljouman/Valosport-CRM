@@ -2,10 +2,10 @@ package com.club.tesoreria.controller;
 
 import com.club.tesoreria.dto.TransaccionCrearDto;
 import com.club.tesoreria.dto.TransaccionFiltroDto;
+import com.club.tesoreria.dto.TransaccionResponseDto;
 import com.club.tesoreria.model.TipoTransaccion;
 import com.club.tesoreria.model.TipoTransaccionCategoria;
 import com.club.tesoreria.model.TipoTransaccionOrigen;
-import com.club.tesoreria.model.Transaccion;
 import com.club.tesoreria.service.TesoreriaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -25,7 +25,7 @@ public class TransaccionController {
     private TesoreriaService tesoreriaService;
 
     @GetMapping("/filtrar")
-    public Page<Transaccion> filtrarTransacciones(
+    public Page<TransaccionResponseDto> filtrarTransacciones(
             @RequestParam(required = false) TipoTransaccion tipo,
             @RequestParam(required = false) TipoTransaccionOrigen origen,
             @RequestParam(required = false) TipoTransaccionCategoria categoria,
@@ -50,7 +50,6 @@ public class TransaccionController {
         filtro.setCantidadMin(cantidadMin);
         filtro.setCantidadMax(cantidadMax);
         filtro.setTitulo(titulo);
-        filtro.setClubId(clubId);
 
         Pageable pageable = PageRequest.of(page, size);
 
@@ -58,12 +57,12 @@ public class TransaccionController {
     }
 
     @PostMapping
-    public Transaccion crear(@Valid @RequestBody TransaccionCrearDto request) {
+    public TransaccionResponseDto crear(@Valid @RequestBody TransaccionCrearDto request) {
         return tesoreriaService.registrarPago(request);
     }
 
     @GetMapping("/balance")
-    public Double verBalanceTotalClub(@RequestParam Long clubId) {
-        return tesoreriaService.obtenerBalanceClub(clubId);
+    public Double verBalanceTotalClub() {
+        return tesoreriaService.obtenerBalanceClubUsuarioActual();
     }
 }

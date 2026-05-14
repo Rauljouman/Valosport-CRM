@@ -2,14 +2,15 @@ package com.club.tesoreria.service;
 
 import com.club.tesoreria.dto.TransaccionFiltroDto;
 import com.club.tesoreria.dto.TransaccionCrearDto;
+import com.club.tesoreria.dto.TransaccionResponseDto;
 import com.club.tesoreria.model.Jugador;
 import com.club.tesoreria.model.TipoTransaccion;
 import com.club.tesoreria.model.TipoTransaccionOrigen;
 import com.club.tesoreria.model.Transaccion;
 import com.club.tesoreria.model.Club;
-import com.club.tesoreria.repository.ClubRepository;
 import com.club.tesoreria.repository.JugadorRepository;
 import com.club.tesoreria.repository.TransaccionRepository;
+import com.club.tesoreria.security.AuthenticatedUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +22,7 @@ import org.springframework.data.domain.Pageable;
 public class TesoreriaService {
 
     @Autowired
-    private ClubRepository clubRepository;
+    private AuthenticatedUserService authenticatedUserService;
 
     @Autowired
     private TransaccionRepository transaccionRepository;
@@ -30,10 +31,9 @@ public class TesoreriaService {
     private JugadorRepository jugadorRepository;
 
     @Transactional
-    public Transaccion registrarPago(TransaccionCrearDto request) {
+    public TransaccionResponseDto registrarPago(TransaccionCrearDto request) {
 
-        Club club = clubRepository.findById(request.getClubId())
-        .orElseThrow(() -> new RuntimeException("Club no encontrado"));
+        Club club = authenticatedUserService.getUsuarioActual().getClub();
 
         if (request.getCantidad() == null || request.getCantidad() <= 0) {
             throw new IllegalArgumentException("Error: La cantidad debe ser mayor a 0.");
@@ -71,19 +71,19 @@ public class TesoreriaService {
 
         if (request.getOrigen() == TipoTransaccionOrigen.JUGADOR) {
 
-            Jugador jugador = jugadorRepository.findById(request.getJugadorId())
-                    .orElseThrow(() -> new RuntimeException("Jugador no encontrado"));
-
             if (request.getTipo() != TipoTransaccion.INGRESO) {
                 throw new IllegalArgumentException("Error: una transacción de jugador debe ser de tipo INGRESO.");
             }
 
-            if(!jugador.getClub().getId().equals(club.getId())){
-                throw new IllegalArgumentException("Error: el jugador no pertenece al club indicado.");
-            }
-
             if (request.getJugadorId() == null) {
                 throw new IllegalArgumentException("Error: debes indicar el jugador.");
+            }
+
+            Jugador jugador = jugadorRepository.findById(request.getJugadorId())
+                    .orElseThrow(() -> new RuntimeException("Jugador no encontrado"));
+
+            if (!jugador.getClub().getId().equals(club.getId())) {
+                throw new IllegalArgumentException("Error: el jugador no pertenece al club indicado.");
             }
 
             if (request.getCantidad() > jugador.getSaldoPendiente()) {
@@ -103,15 +103,47 @@ public class TesoreriaService {
             transaccion.setSaldoJugadorDespues(null);
         }
 
-        return transaccionRepository.save(transaccion);
+        Transaccion transaccionGuardada = transaccionRepository.save(transaccion);
+        return convertirAResponseDto(transaccionGuardada);
     }
 
-    public Page<Transaccion> filtrarTransacciones(TransaccionFiltroDto filtro, Pageable pageable) {
-    return transaccionRepository.findAll(
-            TransaccionSpecification.filtrar(filtro),
-            pageable
-    );
-}
+    private TransaccionResponseDto convertirAResponseDto(Transaccion transaccion) {
+
+        Long jugadorId = null;
+        String jugadorNombre = null;
+
+        if (transaccion.getJugador() != null) {
+            jugadorId = transaccion.getJugador().getId();
+            jugadorNombre = transaccion.getJugador().getNombre() + " " + transaccion.getJugador().getApellido();
+        }
+
+        return new TransaccionResponseDto(
+                transaccion.getId(),
+                transaccion.getTitulo(),
+                transaccion.getDescripcion(),
+                transaccion.getCantidad(),
+                transaccion.getFecha(),
+                transaccion.getTipo(),
+                transaccion.getOrigen(),
+                transaccion.getCategoria(),
+                transaccion.getSaldoJugadorDespues(),
+                transaccion.getSaldoGeneralDespues(),
+                jugadorId,
+                jugadorNombre,
+                transaccion.getClub().getId(),
+                transaccion.getClub().getNombre()
+        );
+    }
+
+    public Page<TransaccionResponseDto> filtrarTransacciones(TransaccionFiltroDto filtro, Pageable pageable) {
+    
+        Long clubId = authenticatedUserService.getClubIdActual();
+
+        return transaccionRepository.findAll(
+            TransaccionSpecification.filtrar(filtro, clubId),
+            pageable)
+            .map(this::convertirAResponseDto);
+    }   
 
     public Double obtenerBalance() {
         Double ingresosTotal = transaccionRepository.sumarIngreso();
@@ -125,6 +157,11 @@ public class TesoreriaService {
             retirosTotal = 0.0;
         }
         return ingresosTotal - retirosTotal;
+    }
+
+    public Double obtenerBalanceClubUsuarioActual() {
+        Long clubId = authenticatedUserService.getClubIdActual();
+        return obtenerBalanceClub(clubId);
     }
 
     public Double obtenerBalanceClub(Long clubId) {
