@@ -33,8 +33,6 @@ public class TesoreriaService {
     @Transactional
     public TransaccionResponseDto registrarPago(TransaccionCrearDto request) {
 
-        Club club = authenticatedUserService.getUsuarioActual().getClub();
-
         if (request.getCantidad() == null || request.getCantidad() <= 0) {
             throw new IllegalArgumentException("Error: La cantidad debe ser mayor a 0.");
         }
@@ -46,6 +44,19 @@ public class TesoreriaService {
         if (request.getOrigen() == null) {
             throw new IllegalArgumentException("Error: debes indicar el origen de la transacción.");
         }
+
+        if (request.getOrigen() == TipoTransaccionOrigen.JUGADOR) {
+
+            if (request.getTipo() != TipoTransaccion.INGRESO) {
+                throw new IllegalArgumentException("Error: una transacción de jugador debe ser de tipo INGRESO.");
+            }
+
+            if (request.getJugadorId() == null) {
+                throw new IllegalArgumentException("Error: debes indicar el jugador.");
+            }
+        }
+
+        Club club = authenticatedUserService.getUsuarioActual().getClub();
 
         Transaccion transaccion = new Transaccion();
         transaccion.setTitulo(request.getTitulo());
@@ -70,14 +81,6 @@ public class TesoreriaService {
         transaccion.setSaldoGeneralDespues(saldoNuevo);
 
         if (request.getOrigen() == TipoTransaccionOrigen.JUGADOR) {
-
-            if (request.getTipo() != TipoTransaccion.INGRESO) {
-                throw new IllegalArgumentException("Error: una transacción de jugador debe ser de tipo INGRESO.");
-            }
-
-            if (request.getJugadorId() == null) {
-                throw new IllegalArgumentException("Error: debes indicar el jugador.");
-            }
 
             Jugador jugador = jugadorRepository.findById(request.getJugadorId())
                     .orElseThrow(() -> new RuntimeException("Jugador no encontrado"));
