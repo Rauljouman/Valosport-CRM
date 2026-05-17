@@ -2,7 +2,6 @@ package com.club.tesoreria.controller;
 
 import com.club.tesoreria.dto.GrupoCrearDto;
 import com.club.tesoreria.dto.GrupoResponseDto;
-import com.club.tesoreria.model.Grupo;
 import com.club.tesoreria.repository.GrupoRepository;
 import com.club.tesoreria.service.GrupoService;
 import jakarta.validation.Valid;

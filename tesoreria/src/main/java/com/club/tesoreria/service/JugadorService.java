@@ -6,7 +6,6 @@ import com.club.tesoreria.dto.JugadorResponseDto;
 import com.club.tesoreria.model.Club;
 import com.club.tesoreria.model.Grupo;
 import com.club.tesoreria.model.Jugador;
-import com.club.tesoreria.repository.ClubRepository;
 import com.club.tesoreria.repository.GrupoRepository;
 import com.club.tesoreria.repository.JugadorRepository;
 import com.club.tesoreria.security.AuthenticatedUserService;
@@ -29,9 +28,6 @@ public class JugadorService {
 
     @Autowired
     private GrupoRepository grupoRepository;
-
-    @Autowired
-    private ClubRepository clubRepository;
 
 
     public JugadorResponseDto registrarJugador(JugadorCrearDto request) {
