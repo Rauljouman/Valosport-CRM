@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 
-function Navbar() {
+function Navbar({ onMenuClick }) {
   const navigate = useNavigate();
 
   const nombre = useAuthStore((state) => state.nombre);
@@ -15,19 +15,27 @@ function Navbar() {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6">
-      <div>
-        <p className="text-xs text-slate-400">Club actual</p>
-        <h2 className="font-bold text-slate-900">
-          {clubNombre || "Sin club"}
-        </h2>
+    <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6">
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onMenuClick}
+          className="lg:hidden rounded-lg border border-slate-300 px-3 py-2 text-slate-700 font-bold"
+        >
+          ☰
+        </button>
+
+        <div>
+          <p className="text-xs text-slate-400">Club actual</p>
+          <h2 className="font-bold text-slate-900 text-sm sm:text-base">
+            {clubNombre || "Sin club"}
+          </h2>
+        </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        <div className="text-right">
-          <p className="font-semibold text-slate-800">
-            {nombre || "Usuario"}
-          </p>
+      <div className="flex items-center gap-3">
+        <div className="hidden sm:block text-right">
+          <p className="font-semibold text-slate-800">{nombre || "Usuario"}</p>
           <p className="text-xs text-slate-500">{rol}</p>
         </div>
 
