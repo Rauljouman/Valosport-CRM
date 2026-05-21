@@ -44,9 +44,6 @@ function DashboardPage() {
     <div className="space-y-6">
       <section className="flex flex-col gap-1">
         <h1 className="text-3xl font-black text-slate-900">Dashboard</h1>
-        <p className="text-slate-500">
-          Resumen general de {clubNombre || "tu club"}.
-        </p>
       </section>
 
       <DashboardStats
