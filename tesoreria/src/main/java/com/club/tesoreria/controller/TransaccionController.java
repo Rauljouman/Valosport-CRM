@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
 
@@ -52,7 +53,10 @@ public class TransaccionController {
         filtro.setCantidadMax(cantidadMax);
         filtro.setTitulo(titulo);
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(
+            page, 
+            size,
+            Sort.by("fecha").descending());
 
         return tesoreriaService.filtrarTransacciones(filtro, pageable);
     }
