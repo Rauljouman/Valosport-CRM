@@ -22,10 +22,6 @@ function JugadoresPage() {
     <div className="space-y-5">
       <section className="flex flex-col gap-1">
         <h1 className="text-3xl font-black text-slate-900">Jugadores</h1>
-        <p className="hidden md:block text-slate-500">
-          Consulta jugadores, filtra por equipo, estado o deuda y revisa el
-          estado de sus cuotas.
-        </p>
       </section>
 
       {error && (
