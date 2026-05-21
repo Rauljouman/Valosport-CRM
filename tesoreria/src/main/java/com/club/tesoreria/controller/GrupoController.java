@@ -27,6 +27,15 @@ public class GrupoController {
         return grupoService.listarGruposDelUsuario();
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR')")
+    public GrupoResponseDto actualizarGrupo(
+            @PathVariable Long id,
+            @Valid @RequestBody GrupoCrearDto request
+    ) {
+        return grupoService.actualizarGrupo(id, request);
+    }
+
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR')")
     public GrupoResponseDto crearGrupo(@Valid @RequestBody GrupoCrearDto request) {

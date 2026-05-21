@@ -7,6 +7,7 @@ function GruposGrid({
   error,
   hasMore,
   handleScroll,
+  onGrupoActualizado,
 }) {
   if (loading) {
     return (
@@ -49,7 +50,11 @@ function GruposGrid({
     >
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {grupos.map((grupo) => (
-          <GrupoCard key={grupo.id} grupo={grupo} />
+          <GrupoCard
+            key={grupo.id}
+            grupo={grupo}
+            onGrupoActualizado={onGrupoActualizado}
+          />
         ))}
       </div>
 

@@ -110,5 +110,6 @@ export function useGrupos() {
     error,
     hasMore,
     handleScroll,
+    cargarGrupos,
   };
 }

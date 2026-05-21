@@ -1,6 +1,8 @@
 import GruposFilters from "../components/grupos/GruposFilters";
 import GruposGrid from "../components/grupos/GruposGrid";
 import { useGrupos } from "../hooks/useGrupos";
+import { useState } from "react";
+import CrearGrupoModal from "../components/grupos/CrearGrupoModal";
 
 function GruposPage() {
   const {
@@ -15,6 +17,7 @@ function GruposPage() {
     error,
     hasMore,
     handleScroll,
+    cargarGrupos,
   } = useGrupos();
 
   return (
@@ -44,6 +47,7 @@ function GruposPage() {
         error={error}
         hasMore={hasMore}
         handleScroll={handleScroll}
+        onGrupoActualizado={cargarGrupos}
       />
     </div>
   );

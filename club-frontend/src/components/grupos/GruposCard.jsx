@@ -1,18 +1,22 @@
 import { useState } from "react";
 import axiosClient from "../../api/axiosClient";
 import GrupoJugadoresModal from "./GrupoJugadoresModal";
+import EditarGrupoModal from "./EditarGrupoModal";
 import {
   ChevronDown,
   Users,
   UserRound,
   Wallet,
   CheckCircle2,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 
-function GrupoCard({ grupo }) {
+function GrupoCard({ grupo, onGrupoActualizado }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [jugadores, setJugadores] = useState([]);
   const [loadingJugadores, setLoadingJugadores] = useState(false);
+  const [editarOpen, setEditarOpen] = useState(false);
 
   const nombre = grupo.nombre ?? "Grupo sin nombre";
   const categoria = grupo.categoria ?? "Sin categoría";
@@ -34,13 +38,31 @@ function GrupoCard({ grupo }) {
     setLoadingJugadores(true);
 
     try {
-      const response = await axiosClient.get(`/jugadores/por-equipo/${grupo.id}`);
+      const response = await axiosClient.get(
+        `/jugadores/por-equipo/${grupo.id}`
+      );
       setJugadores(response.data ?? []);
     } catch (error) {
       console.error(error);
       setJugadores([]);
     } finally {
       setLoadingJugadores(false);
+    }
+  };
+
+  const eliminarGrupo = async () => {
+    const confirmado = window.confirm(
+      `¿Seguro que quieres eliminar el grupo "${nombre}"?`
+    );
+
+    if (!confirmado) return;
+
+    try {
+      await axiosClient.delete(`/grupos/${grupo.id}`);
+      onGrupoActualizado();
+    } catch (error) {
+      console.error(error);
+      alert("No se ha podido eliminar el grupo.");
     }
   };
 
@@ -62,14 +84,36 @@ function GrupoCard({ grupo }) {
             </p>
           </div>
 
-          <div
-            className={`rounded-full px-3 py-1 text-xs font-black ${
-              tieneDeuda
-                ? "bg-amber-100 text-amber-700"
-                : "bg-emerald-100 text-emerald-700"
-            }`}
-          >
-            {tieneDeuda ? "Con deuda" : "Al día"}
+          <div className="flex flex-col items-end gap-2">
+            <div
+              className={`rounded-full px-3 py-1 text-xs font-black ${
+                tieneDeuda
+                  ? "bg-amber-100 text-amber-700"
+                  : "bg-emerald-100 text-emerald-700"
+              }`}
+            >
+              {tieneDeuda ? "Con deuda" : "Al día"}
+            </div>
+
+            <div className="flex gap-1">
+              <button
+                type="button"
+                onClick={() => setEditarOpen(true)}
+                title="Editar grupo"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-[#0F766E]"
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={eliminarGrupo}
+                title="Eliminar grupo"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-600"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -117,6 +161,13 @@ function GrupoCard({ grupo }) {
         grupo={grupo}
         jugadores={jugadores}
         loading={loadingJugadores}
+      />
+
+      <EditarGrupoModal
+        open={editarOpen}
+        onClose={() => setEditarOpen(false)}
+        grupo={grupo}
+        onGrupoActualizado={onGrupoActualizado}
       />
     </>
   );

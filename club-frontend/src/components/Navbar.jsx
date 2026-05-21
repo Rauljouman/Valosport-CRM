@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import { FolderPlus , Menu } from "lucide-react";
 
-function Navbar({ onMenuClick }) {
+function Navbar({ onMenuClick, onCrearGrupo }) {
   const navigate = useNavigate();
 
   const nombre = useAuthStore((state) => state.nombre);
@@ -33,7 +34,20 @@ function Navbar({ onMenuClick }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <button
+        type="button"
+        onClick={onCrearGrupo}
+        title="Crear grupo"
+        className="group relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-[#4ED4D4] hover:text-[#0F766E] hover:bg-slate-50"
+      >
+        <FolderPlus  className="h-5 w-5" />
+
+        <span className="pointer-events-none absolute right-0 top-full z-50 mt-2 hidden whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-lg group-hover:block">
+          Crear grupo
+        </span>
+      </button>
+
+      <div className="flex items-center">
         <div className="hidden sm:block text-right">
           <p className="font-semibold text-slate-800">{nombre || "Usuario"}</p>
           <p className="text-xs text-slate-500">{rol}</p>

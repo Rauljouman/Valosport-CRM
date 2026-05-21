@@ -43,6 +43,24 @@ public class GrupoService {
                 .toList();
     }
 
+    public GrupoResponseDto actualizarGrupo(Long id, GrupoCrearDto request) {
+        Long clubId = authenticatedUserService.getClubIdActual();
+
+        Grupo grupo = grupoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
+
+        if (!grupo.getClub().getId().equals(clubId)) {
+            throw new RuntimeException("El grupo no pertenece a tu club.");
+        }
+
+        grupo.setNombre(request.getNombre());
+        grupo.setCategoria(request.getCategoria());
+
+        Grupo grupoActualizado = grupoRepository.save(grupo);
+
+        return convertirAResponseDto(grupoActualizado);
+    }
+
     private GrupoResponseDto convertirAResponseDto(Grupo grupo) {
         List<Jugador> jugadores = jugadorRepository.findByGrupoId(grupo.getId());
 
@@ -75,5 +93,24 @@ public class GrupoService {
         dto.setTotalPagado(totalPagado);
 
         return dto;
+    }
+
+    public void eliminarGrupo(Long id) {
+        Long clubId = authenticatedUserService.getClubIdActual();
+
+        Grupo grupo = grupoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
+
+        if (!grupo.getClub().getId().equals(clubId)) {
+            throw new RuntimeException("El grupo no pertenece a tu club.");
+        }
+
+        List<Jugador> jugadores = jugadorRepository.findByGrupoId(id);
+
+        if (!jugadores.isEmpty()) {
+            throw new RuntimeException("No puedes eliminar un grupo que tiene jugadores asignados.");
+        }
+
+        grupoRepository.deleteById(id);
     }
 }
