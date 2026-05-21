@@ -4,7 +4,9 @@ import com.club.tesoreria.dto.GrupoCrearDto;
 import com.club.tesoreria.dto.GrupoResponseDto;
 import com.club.tesoreria.model.Club;
 import com.club.tesoreria.model.Grupo;
+import com.club.tesoreria.model.Jugador;
 import com.club.tesoreria.repository.GrupoRepository;
+import com.club.tesoreria.repository.JugadorRepository;
 import com.club.tesoreria.security.AuthenticatedUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import java.util.List;
 public class GrupoService {
 
     private final GrupoRepository grupoRepository;
+    private final JugadorRepository jugadorRepository;
     private final AuthenticatedUserService authenticatedUserService;
 
     public GrupoResponseDto crearGrupo(GrupoCrearDto request) {
@@ -24,6 +27,7 @@ public class GrupoService {
 
         Grupo grupo = new Grupo();
         grupo.setNombre(request.getNombre());
+        grupo.setCategoria(request.getCategoria());
         grupo.setClub(club);
 
         Grupo grupoGuardado = grupoRepository.save(grupo);
@@ -40,11 +44,36 @@ public class GrupoService {
     }
 
     private GrupoResponseDto convertirAResponseDto(Grupo grupo) {
-        return new GrupoResponseDto(
-                grupo.getId(),
-                grupo.getNombre(),
-                grupo.getClub().getId(),
-                grupo.getClub().getNombre()
-        );
+        List<Jugador> jugadores = jugadorRepository.findByGrupoId(grupo.getId());
+
+        int numeroJugadores = jugadores.size();
+
+        double totalPendiente = jugadores.stream()
+                .mapToDouble(jugador -> jugador.getSaldoPendiente() != null ? jugador.getSaldoPendiente() : 0.0)
+                .sum();
+
+        double totalPagado = jugadores.stream()
+                .mapToDouble(jugador -> {
+                    double cuota = jugador.getCuotaAnual() != null ? jugador.getCuotaAnual() : 0.0;
+                    double pendiente = jugador.getSaldoPendiente() != null ? jugador.getSaldoPendiente() : 0.0;
+                    return cuota - pendiente;
+                })
+                .sum();
+
+        GrupoResponseDto dto = new GrupoResponseDto();
+
+        dto.setId(grupo.getId());
+        dto.setNombre(grupo.getNombre());
+        dto.setCategoria(grupo.getCategoria());
+
+        dto.setClubId(grupo.getClub().getId());
+        dto.setClubNombre(grupo.getClub().getNombre());
+
+        dto.setNumeroJugadores(numeroJugadores);
+        dto.setEntrenadorNombre(null);
+        dto.setTotalPendiente(totalPendiente);
+        dto.setTotalPagado(totalPagado);
+
+        return dto;
     }
 }

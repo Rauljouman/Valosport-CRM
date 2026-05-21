@@ -23,17 +23,17 @@ function JugadoresFilters({
 
   return (
     <>
-      {/* Móvil: barra compacta tipo tienda */}
-      <section className="md:hidden bg-white border-y border-slate-200 -mx-4 px-4 py-3">
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-sm font-semibold text-slate-700">
+      {/* Tablet y móvil */}
+      <section className="xl:hidden">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-semibold text-slate-600">
             {totalJugadores} jugadores encontrados
           </p>
 
           <button
             type="button"
             onClick={() => setFiltersOpen(true)}
-            className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-800"
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm"
           >
             <SlidersHorizontal className="h-4 w-4" />
             Filtrar
@@ -41,63 +41,71 @@ function JugadoresFilters({
         </div>
       </section>
 
-      {/* Overlay móvil */}
-      {filtersOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setFiltersOpen(false)}
-          />
+      {/* Panel lateral móvil/tablet */}
+      <div
+        className={`fixed inset-0 z-50 xl:hidden transition ${
+          filtersOpen ? "pointer-events-auto" : "pointer-events-none"
+        }`}
+      >
+        <div
+          onClick={() => setFiltersOpen(false)}
+          className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${
+            filtersOpen ? "opacity-100" : "opacity-0"
+          }`}
+        />
 
-          <aside className="absolute right-0 top-0 h-full w-[86%] max-w-sm bg-white shadow-2xl overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-slate-200 px-5 py-4 flex items-center justify-between">
-              <div>
-                <h2 className="font-black text-slate-900">Filtros</h2>
-                <p className="text-xs text-slate-500">
-                  {totalJugadores} jugadores encontrados
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setFiltersOpen(false)}
-                className="text-2xl leading-none text-slate-500"
-              >
-                ×
-              </button>
+        <aside
+          className={`absolute right-0 top-0 h-full w-[86%] max-w-sm bg-white shadow-2xl overflow-y-auto transition-transform duration-300 ease-out ${
+            filtersOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
+          <div className="sticky top-0 bg-white border-b border-slate-200 px-5 py-4 flex items-center justify-between">
+            <div>
+              <h2 className="font-black text-slate-900">Filtros</h2>
+              <p className="text-xs text-slate-500">
+                {totalJugadores} jugadores encontrados
+              </p>
             </div>
 
-            <div className="p-5">
-              <FiltersContent
-                filtros={filtros}
-                grupos={grupos}
-                actualizarFiltro={actualizarFiltro}
-              />
-            </div>
+            <button
+              type="button"
+              onClick={() => setFiltersOpen(false)}
+              className="text-2xl leading-none text-slate-500"
+            >
+              ×
+            </button>
+          </div>
 
-            <div className="sticky bottom-0 bg-white border-t border-slate-200 p-4 grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={handleClear}
-                className="rounded-xl border border-slate-300 px-4 py-3 text-sm font-bold text-slate-700"
-              >
-                Borrar todo
-              </button>
+          <div className="p-5">
+            <FiltersContent
+              filtros={filtros}
+              grupos={grupos}
+              actualizarFiltro={actualizarFiltro}
+            />
+          </div>
 
-              <button
-                type="button"
-                onClick={handleApply}
-                className="rounded-xl bg-[#4ED4D4] px-4 py-3 text-sm font-black text-white"
-              >
-                Finalizado
-              </button>
-            </div>
-          </aside>
-        </div>
-      )}
+          <div className="sticky bottom-0 bg-white border-t border-slate-200 p-4 grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={handleClear}
+              className="rounded-xl border border-slate-300 px-4 py-3 text-sm font-bold text-slate-700"
+            >
+              Borrar todo
+            </button>
 
-      {/* Desktop/tablet: filtros compactos */}
-      <section className="hidden md:block bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+            <button
+              type="button"
+              onClick={handleApply}
+              className="rounded-xl bg-[#4ED4D4] px-4 py-3 text-sm font-black text-white"
+            >
+              Finalizado
+            </button>
+          </div>
+        </aside>
+      </div>
+
+      {/* Desktop grande */}
+      <section className="hidden xl:block bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="font-black text-slate-900">Filtros</h2>

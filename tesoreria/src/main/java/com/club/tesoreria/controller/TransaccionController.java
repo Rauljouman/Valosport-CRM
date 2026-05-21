@@ -56,7 +56,8 @@ public class TransaccionController {
         Pageable pageable = PageRequest.of(
             page, 
             size,
-            Sort.by("fecha").descending());
+            Sort.by("fecha").descending()
+            .and(Sort.by(Sort.Direction.DESC, "id")));
 
         return tesoreriaService.filtrarTransacciones(filtro, pageable);
     }
