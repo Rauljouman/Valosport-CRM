@@ -34,9 +34,6 @@ function TransaccionesList({
     <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       <div className="p-5 border-b border-slate-200">
         <h2 className="font-black text-slate-900">Movimientos</h2>
-        <p className="text-sm text-slate-500">
-          Se cargan 20 movimientos inicialmente y se añaden más al hacer scroll.
-        </p>
       </div>
 
       <div onScroll={handleScroll} className="max-h-[680px] overflow-y-auto">

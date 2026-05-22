@@ -36,6 +36,14 @@ public interface TransaccionRepository extends JpaRepository<Transaccion, Long>,
     @Query("SELECT SUM(t.cantidad) FROM Transaccion t WHERE t.tipo = 'RETIRO'")
     Double sumarRetirosClub(@Param("clubId") Long clubId);
 
+    @Query("""
+        SELECT COALESCE(SUM(t.cantidad), 0)
+        FROM Transaccion t
+        WHERE t.jugador.id = :jugadorId
+        AND t.tipo = 'INGRESO'
+    """)
+    Double sumarIngresosPorJugador(@Param("jugadorId") Long jugadorId);
+
     @Modifying
     @Transactional
     void deleteByFechaBefore(LocalDateTime fecha);

@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import { FolderPlus , Menu } from "lucide-react";
+import { UserPlus , FolderPlus , Menu } from "lucide-react";
 
-function Navbar({ onMenuClick, onCrearGrupo }) {
+function Navbar({ onMenuClick, onCrearGrupo, onCrearJugador }) {
   const navigate = useNavigate();
 
   const nombre = useAuthStore((state) => state.nombre);
@@ -44,6 +44,19 @@ function Navbar({ onMenuClick, onCrearGrupo }) {
 
         <span className="pointer-events-none absolute right-0 top-full z-50 mt-2 hidden whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-lg group-hover:block">
           Crear grupo
+        </span>
+      </button>
+
+      <button
+        type="button"
+        onClick={onCrearJugador}
+        title="Crear jugador"
+        className="group relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-[#4ED4D4] hover:bg-slate-50 hover:text-[#0F766E]"
+      >
+        <UserPlus className="h-5 w-5" />
+
+        <span className="pointer-events-none absolute right-0 top-full z-50 mt-2 hidden whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-lg group-hover:block">
+          Crear jugador
         </span>
       </button>
 

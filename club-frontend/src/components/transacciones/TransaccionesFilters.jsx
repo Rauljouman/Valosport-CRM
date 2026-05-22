@@ -62,10 +62,6 @@ function TransaccionesFilters({
     <>
       <section className="xl:hidden">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold text-slate-600">
-            Movimientos del club
-          </p>
-
           <button
             type="button"
             onClick={() => setFiltersOpen(true)}

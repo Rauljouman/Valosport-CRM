@@ -1,5 +1,5 @@
 package com.club.tesoreria.service;
-
+import com.club.tesoreria.repository.TransaccionRepository;
 import com.club.tesoreria.dto.JugadorCrearDto;
 import com.club.tesoreria.dto.JugadorFiltroDto;
 import com.club.tesoreria.dto.JugadorResponseDto;
@@ -29,6 +29,13 @@ public class JugadorService {
     @Autowired
     private GrupoRepository grupoRepository;
 
+    @Autowired
+    private TransaccionRepository transaccionRepository;
+
+    private Double calcularTotalIngresadoPorJugador(Long jugadorId) {
+        Double total = transaccionRepository.sumarIngresosPorJugador(jugadorId);
+        return total != null ? total : 0.0;
+    }
 
     public JugadorResponseDto registrarJugador(JugadorCrearDto request) {
 
@@ -101,6 +108,65 @@ public class JugadorService {
                 jugador.getClub() != null ? jugador.getClub().getId() : null,
                 jugador.getClub() != null ? jugador.getClub().getNombre() : null
         );
+    }
+
+    public JugadorResponseDto actualizarJugador(Long id, Jugador nuevosDatos) {
+        Club club = authenticatedUserService.getUsuarioActual().getClub();
+
+        Jugador jugadorExiste = jugadorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("No se ha encontrado el jugador con ID: " + id));
+
+        if (!jugadorExiste.getClub().getId().equals(club.getId())) {
+            throw new RuntimeException("El jugador no pertenece a tu club.");
+        }
+
+        if (nuevosDatos.getGrupo() == null || nuevosDatos.getGrupo().getId() == null) {
+            throw new RuntimeException("Debes indicar el grupo del jugador.");
+        }
+
+        Grupo grupo = grupoRepository.findById(nuevosDatos.getGrupo().getId())
+                .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
+
+        if (!grupo.getClub().getId().equals(club.getId())) {
+            throw new RuntimeException("El grupo no pertenece a tu club.");
+        }
+
+        Double cuotaActual = jugadorExiste.getCuotaAnual() != null ? jugadorExiste.getCuotaAnual() : 0.0;
+        Double pendienteActual = jugadorExiste.getSaldoPendiente() != null ? jugadorExiste.getSaldoPendiente() : 0.0;
+
+        Double saldoIngresadoActual = calcularTotalIngresadoPorJugador(jugadorExiste.getId());
+
+        Double nuevaCuota = nuevosDatos.getCuotaAnual() != null ? nuevosDatos.getCuotaAnual() : 0.0;
+
+        if (nuevaCuota < 0) {
+            throw new RuntimeException("La cuota anual no puede ser negativa.");
+        }
+
+        Double nuevoSaldoPendiente = nuevaCuota - saldoIngresadoActual;
+       
+        if (nuevoSaldoPendiente < 0) {
+            nuevoSaldoPendiente = 0.0;
+        }
+
+        jugadorExiste.setDni(nuevosDatos.getDni());
+        jugadorExiste.setNombre(nuevosDatos.getNombre());
+        jugadorExiste.setApellido(nuevosDatos.getApellido());
+        jugadorExiste.setEmail(nuevosDatos.getEmail());
+        jugadorExiste.setTelefono(nuevosDatos.getTelefono());
+        jugadorExiste.setDireccion(nuevosDatos.getDireccion());
+        jugadorExiste.setFechaNacimiento(nuevosDatos.getFechaNacimiento());
+
+        jugadorExiste.setCuotaAnual(nuevaCuota);
+        jugadorExiste.setSaldoPendiente(nuevoSaldoPendiente);
+
+        jugadorExiste.setRutaDocumento(nuevosDatos.getRutaDocumento());
+        jugadorExiste.setRol(nuevosDatos.getRol());
+        jugadorExiste.setEstatus(nuevosDatos.getEstatus());
+        jugadorExiste.setGrupo(grupo);
+
+        Jugador jugadorActualizado = jugadorRepository.save(jugadorExiste);
+
+        return convertirAResponseDto(jugadorActualizado);
     }
 
 

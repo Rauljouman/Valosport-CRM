@@ -16,6 +16,7 @@ function JugadoresPage() {
     error,
     hasMore,
     handleScroll,
+    cargarInicial,
   } = useJugadores();
 
   return (
@@ -41,10 +42,12 @@ function JugadoresPage() {
 
       <JugadoresTable
         jugadores={jugadores}
+        grupos={grupos}
         loading={loading}
         loadingMore={loadingMore}
         hasMore={hasMore}
         handleScroll={handleScroll}
+        onJugadorActualizado={cargarInicial}
       />
     </div>
   );

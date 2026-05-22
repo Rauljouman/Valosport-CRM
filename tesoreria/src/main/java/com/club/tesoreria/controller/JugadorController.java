@@ -42,24 +42,11 @@ public class JugadorController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR')")
-    public Jugador actualizar(@PathVariable Long id, @RequestBody Jugador nuevosDatos) {
-        return jugadorRepository.findById(id).map(jugadorExiste -> {
-            jugadorExiste.setDni(nuevosDatos.getDni());
-            jugadorExiste.setNombre(nuevosDatos.getNombre());
-            jugadorExiste.setApellido(nuevosDatos.getApellido());
-            jugadorExiste.setEmail(nuevosDatos.getEmail());
-            jugadorExiste.setTelefono(nuevosDatos.getTelefono());
-            jugadorExiste.setDireccion(nuevosDatos.getDireccion());
-            jugadorExiste.setFechaNacimiento(nuevosDatos.getFechaNacimiento());
-            jugadorExiste.setCuotaAnual(nuevosDatos.getCuotaAnual());
-            jugadorExiste.setSaldoPendiente(nuevosDatos.getSaldoPendiente());
-            jugadorExiste.setRutaDocumento(nuevosDatos.getRutaDocumento());
-            jugadorExiste.setRol(nuevosDatos.getRol()); 
-            jugadorExiste.setEstatus(nuevosDatos.getEstatus());
-            jugadorExiste.setGrupo(nuevosDatos.getGrupo());
-
-            return jugadorRepository.save(jugadorExiste);
-        }).orElseThrow(() -> new RuntimeException("No se ha encontrado el jugador con ID: " + id));
+    public JugadorResponseDto actualizar(
+            @PathVariable Long id,
+            @RequestBody Jugador nuevosDatos
+    ) {
+        return jugadorService.actualizarJugador(id, nuevosDatos);
     }
 
     @DeleteMapping("/{id}")
