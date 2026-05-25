@@ -3,6 +3,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import axiosClient from "../../api/axiosClient";
 import { formatoEuros } from "../../utils/formatters";
 import EditarJugadorModal from "./EditarJugadorModal";
+import { useAuthStore } from "../../store/authStore";
 
 function JugadoresTable({
   jugadores,
@@ -15,6 +16,12 @@ function JugadoresTable({
 }) {
   const [editarOpen, setEditarOpen] = useState(false);
   const [jugadorSeleccionado, setJugadorSeleccionado] = useState(null);
+  const rolUsuario = useAuthStore((state) => state.rol);
+
+  const puedeEditarJugador =
+  rolUsuario === "ADMIN" || rolUsuario === "COORDINADOR";
+
+  const puedeEliminarJugador = rolUsuario === "ADMIN";
 
   const calcularPagado = (jugador) => {
     const cuota = Number(jugador.cuotaAnual || 0);
@@ -39,9 +46,15 @@ function JugadoresTable({
       await axiosClient.delete(`/jugadores/${jugador.id}`);
       onJugadorActualizado?.();
     } catch (error) {
-      console.error(error);
-      alert("No se ha podido eliminar el jugador.");
-    }
+        console.error(error);
+
+        if (error.response?.status === 403) {
+          alert("No tienes permisos para eliminar jugadores.");
+          return;
+        }
+
+        alert("No se ha podido eliminar el jugador.");
+      }
   };
 
   if (loading) {
@@ -57,9 +70,6 @@ function JugadoresTable({
       <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="p-5 border-b border-slate-200">
           <h2 className="font-black text-slate-900">Listado de jugadores</h2>
-          <p className="text-sm text-slate-500">
-            Se cargan 20 jugadores inicialmente y se añaden más al hacer scroll.
-          </p>
         </div>
 
         <div onScroll={handleScroll} className="max-h-[620px] overflow-y-auto">
@@ -90,23 +100,27 @@ function JugadoresTable({
                       </span>
 
                       <div className="flex gap-1">
-                        <button
-                          type="button"
-                          onClick={() => abrirEditar(jugador)}
-                          title="Editar jugador"
-                          className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-[#0F766E]"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </button>
+                        {puedeEditarJugador && (
+                          <button
+                            type="button"
+                            onClick={() => abrirEditar(jugador)}
+                            title="Editar jugador"
+                            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-[#0F766E]"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                        )}
 
-                        <button
-                          type="button"
-                          onClick={() => eliminarJugador(jugador)}
-                          title="Eliminar jugador"
-                          className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-600"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        {puedeEliminarJugador && (
+                          <button
+                            type="button"
+                            onClick={() => eliminarJugador(jugador)}
+                            title="Eliminar jugador"
+                            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -229,14 +243,14 @@ function JugadoresTable({
 
                       <td className="px-5 py-4">
                         <div className="flex justify-end gap-1">
-                          <button
+                          {puedeEditarJugador &&(<button
                             type="button"
                             onClick={() => abrirEditar(jugador)}
                             title="Editar jugador"
                             className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-[#0F766E]"
                           >
                             <Pencil className="h-4 w-4" />
-                          </button>
+                          </button>)}
 
                           <button
                             type="button"

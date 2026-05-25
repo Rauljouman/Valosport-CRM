@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import CrearJugadorModal from "../components/jugadores/CrearJugadorModal";
 import CrearGrupoModal from "../components/grupos/CrearGrupoModal";
+import CrearTransaccionModal from "../components/transacciones/CrearTransaccionModal";
 import { useAuthStore } from "../store/authStore";
 
 function MainLayout() {
@@ -11,6 +12,7 @@ function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [crearGrupoOpen, setCrearGrupoOpen] = useState(false);
   const [crearJugadorOpen, setCrearJugadorOpen] = useState(false);
+  const [crearTransaccionOpen, setCrearTransaccionOpen] = useState(false);
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -40,6 +42,7 @@ function MainLayout() {
           onMenuClick={() => setSidebarOpen(true)}
           onCrearGrupo={() => setCrearGrupoOpen(true)}
           onCrearJugador={() => setCrearJugadorOpen(true)}
+          onCrearTransaccion={() => setCrearTransaccionOpen(true)}
         />
 
         <main className="flex-1 p-4 sm:p-6">
@@ -57,6 +60,12 @@ function MainLayout() {
         open={crearJugadorOpen}
         onClose={() => setCrearJugadorOpen(false)}
         onJugadorCreado={() => window.location.reload()}
+      />
+
+      <CrearTransaccionModal
+        open={crearTransaccionOpen}
+        onClose={() => setCrearTransaccionOpen(false)}
+        onTransaccionCreada={() => window.location.reload()}
       />
     </div>
   );

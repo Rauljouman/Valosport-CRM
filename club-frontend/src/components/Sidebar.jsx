@@ -1,11 +1,15 @@
 import { NavLink } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
 import {
   LayoutDashboard,
   Users,
   Layers,
   ReceiptText,
+  Settings,
+  MessageCircleMore
 } from "lucide-react";
 
+const rolUsuario = useAuthStore((state) => state.rol);
 const menuItems = [
   {
     label: "Dashboard",
@@ -27,7 +31,26 @@ const menuItems = [
     path: "/transacciones",
     icon: ReceiptText,
   },
+  {
+    label: "Configuración",
+    path: "/configuracion",
+    icon: Settings,
+    adminOnly: true,
+  },
+  {
+    label: "Sugerencias",
+    path: "/sugerencias",
+    icon: MessageCircleMore,
+  },
 ];
+
+const itemsVisibles = menuItems.filter((item) => {
+  if (item.adminOnly && rolUsuario !== "ADMIN") {
+    return false;
+  }
+
+  return true;
+});
 
 function Sidebar({ onNavigate }) {
   return (
@@ -43,7 +66,7 @@ function Sidebar({ onNavigate }) {
       </div>
 
       <nav className="space-y-2">
-        {menuItems.map((item) => {
+        {itemsVisibles.map((item) => {
           const Icon = item.icon;
 
           return (

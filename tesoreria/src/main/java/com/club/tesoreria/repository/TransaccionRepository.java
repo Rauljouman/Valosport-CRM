@@ -30,10 +30,10 @@ public interface TransaccionRepository extends JpaRepository<Transaccion, Long>,
     @Query("SELECT SUM(t.cantidad) FROM Transaccion t WHERE t.tipo = 'RETIRO'")
     Double sumarRetiros();
 
-    @Query("SELECT SUM(t.cantidad) FROM Transaccion t WHERE t.tipo = 'INGRESO'")
+    @Query("SELECT SUM(t.cantidad) FROM Transaccion t WHERE t.tipo = 'INGRESO' AND t.club.id = :clubId")
     Double sumarIngresoClub(@Param("clubId") Long clubId);
 
-    @Query("SELECT SUM(t.cantidad) FROM Transaccion t WHERE t.tipo = 'RETIRO'")
+    @Query("SELECT SUM(t.cantidad) FROM Transaccion t WHERE t.tipo = 'RETIRO' AND t.club.id = :clubId")
     Double sumarRetirosClub(@Param("clubId") Long clubId);
 
     @Query("""

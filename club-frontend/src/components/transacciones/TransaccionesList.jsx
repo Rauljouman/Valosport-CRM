@@ -67,24 +67,26 @@ function TransaccionesList({
                         {transaccion.titulo}
                       </h3>
 
-                      <p className="text-sm text-slate-500 mt-1">
-                        {transaccion.jugadorNombre ||
-                          transaccion.categoria ||
-                          "Movimiento del club"}
-                      </p>
+                      <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-slate-500">
+                        <span className="text-sm text-slate-500">
+                          {transaccion.jugadorNombre ||
+                            transaccion.origen ||
+                            "Movimiento del club"}
+                        </span>
 
-                      <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-slate-500">
                         <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-1">
                           <CreditCard className="h-3 w-3" />
                           {transaccion.categoria}
                         </span>
 
-                        <span className="rounded-full bg-slate-100 px-2 py-1">
-                          {transaccion.origen}
-                        </span>
-
                         <span>{formatearFecha(transaccion.fecha)}</span>
                       </div>
+
+                      {transaccion.descripcion && (
+                        <p className="mt-2 text-sm text-slate-600 break-words line-clamp-2">
+                          {transaccion.descripcion}
+                        </p>
+                      )}
                     </div>
                   </div>
 
