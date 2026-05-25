@@ -2,6 +2,7 @@ import { useState } from "react";
 import axiosClient from "../../api/axiosClient";
 import GrupoJugadoresModal from "./GrupoJugadoresModal";
 import EditarGrupoModal from "./EditarGrupoModal";
+import { useAuthStore } from "../../store/authStore";
 import {
   ChevronDown,
   Users,
@@ -17,6 +18,10 @@ function GrupoCard({ grupo, onGrupoActualizado }) {
   const [jugadores, setJugadores] = useState([]);
   const [loadingJugadores, setLoadingJugadores] = useState(false);
   const [editarOpen, setEditarOpen] = useState(false);
+  const rolUsuario = useAuthStore((state) => state.rol);
+
+  const puedeEditarGrupo = rolUsuario === "ADMIN" || rolUsuario === "COORDINADOR";
+  const puedeEliminarGrupo = rolUsuario === "ADMIN";
 
   const nombre = grupo.nombre ?? "Grupo sin nombre";
   const categoria = grupo.categoria ?? "Sin categoría";
@@ -96,23 +101,27 @@ function GrupoCard({ grupo, onGrupoActualizado }) {
             </div>
 
             <div className="flex gap-1">
-              <button
-                type="button"
-                onClick={() => setEditarOpen(true)}
-                title="Editar grupo"
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-[#0F766E]"
-              >
-                <Pencil className="h-4 w-4" />
-              </button>
+              {puedeEditarGrupo && (
+                <button
+                  type="button"
+                  onClick={() => setEditarOpen(true)}
+                  title="Editar grupo"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-[#0F766E]"
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
+              )}
 
-              <button
-                type="button"
-                onClick={eliminarGrupo}
-                title="Eliminar grupo"
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-600"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
+              {puedeEliminarGrupo && (
+                <button
+                  type="button"
+                  onClick={eliminarGrupo}
+                  title="Eliminar grupo"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-600"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -133,5 +133,6 @@ export function useJugadores() {
     error,
     hasMore,
     handleScroll,
+    cargarInicial
   };
 }

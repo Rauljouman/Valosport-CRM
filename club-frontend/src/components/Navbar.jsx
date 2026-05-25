@@ -1,14 +1,27 @@
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import { FolderPlus , Menu } from "lucide-react";
+import { UserPlus, FolderPlus, Menu, ReceiptText } from "lucide-react";
 
-function Navbar({ onMenuClick, onCrearGrupo }) {
+function Navbar({
+  onMenuClick,
+  onCrearGrupo,
+  onCrearJugador,
+  onCrearTransaccion,
+}) {
   const navigate = useNavigate();
 
   const nombre = useAuthStore((state) => state.nombre);
   const rol = useAuthStore((state) => state.rol);
   const clubNombre = useAuthStore((state) => state.clubNombre);
   const logout = useAuthStore((state) => state.logout);
+
+  const esAdmin = rol === "ADMIN";
+  const esTesorero = rol === "TESORERO";
+  const esGestor = rol === "GESTOR";
+
+  const puedeGestionarGrupos = esAdmin || esGestor;
+  const puedeGestionarJugadores = esAdmin || esGestor;
+  const puedeCrearTransacciones = esAdmin || esTesorero;
 
   const handleLogout = () => {
     logout();
@@ -23,7 +36,7 @@ function Navbar({ onMenuClick, onCrearGrupo }) {
           onClick={onMenuClick}
           className="lg:hidden rounded-lg border border-slate-300 px-3 py-2 text-slate-700 font-bold"
         >
-          ☰
+          <Menu className="h-5 w-5" />
         </button>
 
         <div>
@@ -34,21 +47,32 @@ function Navbar({ onMenuClick, onCrearGrupo }) {
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={onCrearGrupo}
-        title="Crear grupo"
-        className="group relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-[#4ED4D4] hover:text-[#0F766E] hover:bg-slate-50"
-      >
-        <FolderPlus  className="h-5 w-5" />
+      <div className="flex items-center gap-2">
+        {puedeGestionarGrupos && (
+          <IconButton
+            onClick={onCrearGrupo}
+            title="Crear grupo"
+            icon={<FolderPlus className="h-5 w-5" />}
+          />
+        )}
 
-        <span className="pointer-events-none absolute right-0 top-full z-50 mt-2 hidden whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-lg group-hover:block">
-          Crear grupo
-        </span>
-      </button>
+        {puedeGestionarJugadores && (
+          <IconButton
+            onClick={onCrearJugador}
+            title="Crear jugador"
+            icon={<UserPlus className="h-5 w-5" />}
+          />
+        )}
 
-      <div className="flex items-center">
-        <div className="hidden sm:block text-right">
+        {puedeCrearTransacciones && (
+          <IconButton
+            onClick={onCrearTransaccion}
+            title="Crear transacción"
+            icon={<ReceiptText className="h-5 w-5" />}
+          />
+        )}
+
+        <div className="hidden sm:block text-right ml-2">
           <p className="font-semibold text-slate-800">{nombre || "Usuario"}</p>
           <p className="text-xs text-slate-500">{rol}</p>
         </div>
@@ -61,6 +85,23 @@ function Navbar({ onMenuClick, onCrearGrupo }) {
         </button>
       </div>
     </header>
+  );
+}
+
+function IconButton({ onClick, title, icon }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      className="group relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-[#4ED4D4] hover:bg-slate-50 hover:text-[#0F766E]"
+    >
+      {icon}
+
+      <span className="pointer-events-none absolute right-0 top-full z-50 mt-2 hidden whitespace-nowrap rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-lg group-hover:block">
+        {title}
+      </span>
+    </button>
   );
 }
 
