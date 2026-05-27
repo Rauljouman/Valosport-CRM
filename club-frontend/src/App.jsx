@@ -6,7 +6,8 @@ import JugadoresPage from "./pages/JugadoresPage";
 import GruposPage from "./pages/GruposPage";
 import TransaccionesPage from "./pages/TransaccionesPage";
 import RoleRoute from "./components/RoleRoute";
-import SugerenciaPage from "./pages/Sugerencias.Page"
+import SugerenciaPage from "./pages/Sugerencias.Page";
+import ConfiguracioPage from "./pages/ConfiguracionPage";
 
 function App() {
   return (
@@ -58,7 +59,7 @@ function App() {
           path="configuracion"
           element={
             <RoleRoute allowedRoles={["ADMIN", "TESORERO","COORDINADOR"]}>
-              <SugerenciaPage />
+              <ConfiguracioPage />
             </RoleRoute>
           }
         />
