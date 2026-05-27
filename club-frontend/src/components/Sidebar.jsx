@@ -9,7 +9,6 @@ import {
   MessageCircleMore
 } from "lucide-react";
 
-const rolUsuario = useAuthStore((state) => state.rol);
 const menuItems = [
   {
     label: "Dashboard",
@@ -44,15 +43,17 @@ const menuItems = [
   },
 ];
 
-const itemsVisibles = menuItems.filter((item) => {
-  if (item.adminOnly && rolUsuario !== "ADMIN") {
-    return false;
-  }
-
-  return true;
-});
-
 function Sidebar({ onNavigate }) {
+
+  const rolUsuario = useAuthStore((state) => state.rol);
+  const itemsVisibles = menuItems.filter((item) => {
+    if (item.adminOnly && rolUsuario !== "ADMIN") {
+      return false;
+    }
+
+    return true;
+  });
+  
   return (
     <aside className="w-64 bg-white text-slate-900 min-h-screen px-5 pt-2 pb-5 border-r border-slate-200">
       <div className="mb-6 flex flex-col items-center">

@@ -6,6 +6,7 @@ import JugadoresPage from "./pages/JugadoresPage";
 import GruposPage from "./pages/GruposPage";
 import TransaccionesPage from "./pages/TransaccionesPage";
 import RoleRoute from "./components/RoleRoute";
+import SugerenciaPage from "./pages/Sugerencias.Page"
 
 function App() {
   return (
@@ -43,9 +44,36 @@ function App() {
             </RoleRoute>
           }
         />
+
+        <Route
+          path="transacciones"
+          element={
+            <RoleRoute allowedRoles={["ADMIN", "TESORERO","COORDINADOR"]}>
+              <TransaccionesPage />
+            </RoleRoute>
+          }
+        />
+
+        <Route
+          path="configuracion"
+          element={
+            <RoleRoute allowedRoles={["ADMIN", "TESORERO","COORDINADOR"]}>
+              <SugerenciaPage />
+            </RoleRoute>
+          }
+        />
+
+        <Route
+          path="sugerencias"
+          element={
+            <RoleRoute allowedRoles={["ADMIN", "TESORERO","COORDINADOR"]}>
+              <SugerenciaPage />
+            </RoleRoute>
+          }
+        />
+
       </Route>
 
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }

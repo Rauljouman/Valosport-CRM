@@ -17,10 +17,10 @@ function Navbar({
 
   const esAdmin = rol === "ADMIN";
   const esTesorero = rol === "TESORERO";
-  const esGestor = rol === "GESTOR";
+  const esCoordinador = rol === "COORDINADOR";
 
-  const puedeGestionarGrupos = esAdmin || esGestor;
-  const puedeGestionarJugadores = esAdmin || esGestor;
+  const puedeGestionarGrupos = esAdmin || esCoordinador;
+  const puedeGestionarJugadores = esAdmin || esCoordinador;
   const puedeCrearTransacciones = esAdmin || esTesorero;
 
   const handleLogout = () => {
