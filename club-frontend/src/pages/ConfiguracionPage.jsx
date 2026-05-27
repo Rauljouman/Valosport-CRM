@@ -1,11 +1,14 @@
+import { useState } from "react";
 import {
   Users,
   Building2,
   Info,
-  ShieldCheck,
 } from "lucide-react";
+import EditarClubModal from "../components/configuracion/EditarClubModal";
 
 function ConfiguracionPage() {
+  const [editarClubOpen, setEditarClubOpen] = useState(false);
+
   return (
     <div className="space-y-5">
       <section>
@@ -27,6 +30,7 @@ function ConfiguracionPage() {
           title="Datos del club"
           text="Edita la información principal del club como nombre, correo o ciudad."
           button="Editar club"
+          onClick={() => setEditarClubOpen(true)}
         />
 
         <ConfigCard
@@ -36,11 +40,17 @@ function ConfiguracionPage() {
           button="Ver información"
         />
       </section>
+
+      <EditarClubModal
+        open={editarClubOpen}
+        onClose={() => setEditarClubOpen(false)}
+        onClubActualizado={() => window.location.reload()}
+      />
     </div>
   );
 }
 
-function ConfigCard({ icon, title, text, button }) {
+function ConfigCard({ icon, title, text, button, onClick }) {
   return (
     <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
       <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#4ED4D4]/15 text-[#0F766E]">
@@ -55,7 +65,11 @@ function ConfigCard({ icon, title, text, button }) {
         {text}
       </p>
 
-      <button className="mt-4 rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50">
+      <button
+        type="button"
+        onClick={onClick}
+        className="mt-4 rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+      >
         {button}
       </button>
     </article>

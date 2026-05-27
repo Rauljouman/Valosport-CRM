@@ -13,6 +13,11 @@ export const useAuthStore = create(
       clubNombre: null,
       isAuthenticated: false,
 
+      setClubNombre: (clubNombre) =>
+        set({
+          clubNombre,
+        }),
+
       login: async (email, password) => {
         const response = await axiosClient.post("/auth/login", {
           email,
@@ -49,5 +54,6 @@ export const useAuthStore = create(
     {
       name: "auth-storage",
     }
+    
   )
 );
