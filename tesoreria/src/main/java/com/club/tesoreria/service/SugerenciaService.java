@@ -23,7 +23,8 @@ public class SugerenciaService {
         UsuarioSistema usuario = authenticatedUserService.getUsuarioActual();
 
         String cuerpo = """
-
+        Nueva sugerencia desde Valosport:
+        
         👤 %s  |  📧 %s
         🏟️ %s
 
@@ -33,7 +34,7 @@ public class SugerenciaService {
         💬 Mensaje:
         %s
 
-        Enviado automáticamente desde Valosport CRM
+        
         """.formatted(usuario.getNombre(),
                 usuario.getEmail(),
                 usuario.getClub().getNombre(),
