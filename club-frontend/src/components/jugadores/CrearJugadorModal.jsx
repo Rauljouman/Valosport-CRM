@@ -145,7 +145,7 @@ function CrearJugadorModal({ open, onClose, onJugadorCreado }) {
               <input className={inputClass} value={form.nombre} onChange={(e) => actualizarCampo("nombre", e.target.value)} />
             </Campo>
 
-            <Campo label="Apellido">
+            <Campo label="Apellidos">
               <input className={inputClass} value={form.apellido} onChange={(e) => actualizarCampo("apellido", e.target.value)} />
             </Campo>
 
@@ -168,16 +168,39 @@ function CrearJugadorModal({ open, onClose, onJugadorCreado }) {
             </Campo>
 
             <Campo label="Fecha nacimiento">
-              <input type="date" className={inputClass} value={form.fechaNacimiento} onChange={(e) => actualizarCampo("fechaNacimiento", e.target.value)} />
+              <div className="grid grid-cols-3 gap-2">
+                <input
+                  type="number"
+                  placeholder="Día"
+                  min="1"
+                  max="31"
+                  className={inputClass}
+                />
+                <input
+                  type="number"
+                  placeholder="Mes"
+                  min="1"
+                  max="12"
+                  className={inputClass}
+                />
+                <input
+                  type="number"
+                  placeholder="Año"
+                  min="1900"
+                  className={inputClass}
+                />
+              </div>
             </Campo>
 
             <Campo label="Dirección">
               <input className={inputClass} value={form.direccion} onChange={(e) => actualizarCampo("direccion", e.target.value)} />
             </Campo>
-
+            
+            {/*
             <Campo label="Ruta documento">
               <input className={inputClass} value={form.rutaDocumento} onChange={(e) => actualizarCampo("rutaDocumento", e.target.value)} />
             </Campo>
+            */}
 
             <Campo label="Cuota anual">
               <input
