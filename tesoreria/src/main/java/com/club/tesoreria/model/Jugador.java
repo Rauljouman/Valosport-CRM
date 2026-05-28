@@ -55,7 +55,6 @@ public class Jugador {
     @Column(nullable = false)
     private Double saldoPendiente;
 
-    @NotBlank
     @Column(nullable = false)
     private String rutaDocumento;
 

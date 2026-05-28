@@ -10,8 +10,11 @@ import com.club.tesoreria.model.UsuarioSistema;
 import com.club.tesoreria.repository.UsuarioSistemaRepository;
 import com.club.tesoreria.security.AuthenticatedUserService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.mail.SimpleMailMessage;
 
 import java.util.List;
 
@@ -22,6 +25,7 @@ public class UsuarioSistemaService {
     private final UsuarioSistemaRepository usuarioSistemaRepository;
     private final AuthenticatedUserService authenticatedUserService;
     private final PasswordEncoder passwordEncoder;
+    private final JavaMailSender mailSender;
 
     public UsuarioResponseDto crearUsuario(UsuarioCrearDto request) {
         if (usuarioSistemaRepository.existsByEmail(request.getEmail())) {
@@ -38,6 +42,8 @@ public class UsuarioSistemaService {
         usuario.setClub(club);
 
         UsuarioSistema guardado = usuarioSistemaRepository.save(usuario);
+
+        enviarCorreoNuevoUsuario(guardado, request.getPassword());
 
         return convertirAResponseDto(guardado);
     }
@@ -59,6 +65,14 @@ public class UsuarioSistemaService {
 
         if (!usuario.getClub().getId().equals(clubId)) {
             throw new RuntimeException("El usuario no pertenece a tu club.");
+        }
+
+        if (usuario.getRol() == TipoRolSistema.OWNER) {
+            throw new RuntimeException("No puedes cambiar el rol del propietario del club.");
+        }
+
+        if (request.getRol() == TipoRolSistema.OWNER) {
+            throw new RuntimeException("No puedes asignar el rol OWNER desde este panel.");
         }
 
         usuario.setRol(request.getRol());
@@ -94,12 +108,19 @@ public class UsuarioSistemaService {
             throw new RuntimeException("No puedes eliminar tu propio usuario.");
         }
 
-        if (usuarioAEliminar.getRol() == TipoRolSistema.ADMIN) {
-            throw new RuntimeException("No puedes eliminar a otro administrador.");
+        if (usuarioAEliminar.getRol() == TipoRolSistema.OWNER) {
+            throw new RuntimeException("No puedes eliminar al propietario del club.");
         }
 
-        usuarioSistemaRepository.deleteById(id);
-    }
+        if (
+                usuarioActual.getRol() == TipoRolSistema.ADMIN &&
+                usuarioAEliminar.getRol() == TipoRolSistema.ADMIN
+            ) {
+                throw new RuntimeException("Un administrador no puede eliminar a otro administrador.");
+            }
+
+                    usuarioSistemaRepository.deleteById(id);
+                }
 
     public UsuarioResponseDto actualizarUsuario(Long id, UsuarioActualizarDto request) {
         Long clubId = authenticatedUserService.getClubIdActual();
@@ -117,5 +138,36 @@ public class UsuarioSistemaService {
         UsuarioSistema actualizado = usuarioSistemaRepository.save(usuario);
 
         return convertirAResponseDto(actualizado);
+    }
+    
+    private void enviarCorreoNuevoUsuario(UsuarioSistema usuario, String passwordTemporal) {
+        SimpleMailMessage mensaje = new SimpleMailMessage();
+
+        mensaje.setTo(usuario.getEmail());
+        mensaje.setSubject("Bienvenido a Valosport");
+
+        mensaje.setText("""
+                Hola %s,
+
+                Se ha creado una cuenta para ti en Valosport.
+
+                Datos de acceso:
+                Email: %s
+                Contraseña temporal: %s
+                Rol asignado: %s
+                Club: %s
+
+                Te recomendamos cambiar la contraseña cuando accedas.
+
+                Valosport CRM
+                """.formatted(
+                usuario.getNombre(),
+                usuario.getEmail(),
+                passwordTemporal,
+                usuario.getRol(),
+                usuario.getClub().getNombre()
+        ));
+
+        mailSender.send(mensaje);
     }
 }

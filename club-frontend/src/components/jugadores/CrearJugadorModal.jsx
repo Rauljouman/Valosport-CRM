@@ -21,6 +21,7 @@ function CrearJugadorModal({ open, onClose, onJugadorCreado }) {
   const [grupos, setGrupos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [fecha, setFecha] = useState({dia: "", mes: "", anio: "",});
 
   useEffect(() => {
     if (open) cargarGrupos();
@@ -32,6 +33,27 @@ function CrearJugadorModal({ open, onClose, onJugadorCreado }) {
       setGrupos(response.data ?? []);
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const actualizarFecha = (campo, valor) => {
+  const nuevaFecha = {
+      ...fecha,
+      [campo]: valor,
+    };
+
+    setFecha(nuevaFecha);
+
+    const { dia, mes, anio } = nuevaFecha;
+
+    if (dia && mes && anio) {
+      const diaFormateado = String(dia).padStart(2, "0");
+      const mesFormateado = String(mes).padStart(2, "0");
+
+      actualizarCampo(
+        "fechaNacimiento",
+        `${anio}-${mesFormateado}-${diaFormateado}`
+      );
     }
   };
 
@@ -72,10 +94,6 @@ function CrearJugadorModal({ open, onClose, onJugadorCreado }) {
       return setError("La cuota anual no puede ser negativa.");
     }
 
-    if (!form.rutaDocumento.trim()) {
-      return setError("La ruta del documento es obligatoria.");
-    }
-
     if (!form.grupoId) return setError("Debes seleccionar un grupo.");
 
     try {
@@ -85,15 +103,21 @@ function CrearJugadorModal({ open, onClose, onJugadorCreado }) {
       await axiosClient.post("/jugadores", {
         ...form,
         cuotaAnual: Number(form.cuotaAnual),
+        rutaDocumento: "",
         grupoId: Number(form.grupoId),
       });
 
       setForm(formInicial);
+      setFecha({ dia: "", mes: "", anio: "" });
       onJugadorCreado?.();
       onClose();
     } catch (error) {
       console.error(error);
-      setError("No se ha podido crear el jugador.");
+      setError(
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "No se ha podido crear el jugador."
+      );
     } finally {
       setLoading(false);
     }
@@ -175,19 +199,27 @@ function CrearJugadorModal({ open, onClose, onJugadorCreado }) {
                   min="1"
                   max="31"
                   className={inputClass}
+                  value={fecha.dia}
+                  onChange={(e) => actualizarFecha("dia", e.target.value)}
                 />
+
                 <input
                   type="number"
                   placeholder="Mes"
                   min="1"
                   max="12"
                   className={inputClass}
+                  value={fecha.mes}
+                  onChange={(e) => actualizarFecha("mes", e.target.value)}
                 />
+
                 <input
                   type="number"
                   placeholder="Año"
                   min="1900"
                   className={inputClass}
+                  value={fecha.anio}
+                  onChange={(e) => actualizarFecha("anio", e.target.value)}
                 />
               </div>
             </Campo>
@@ -195,12 +227,6 @@ function CrearJugadorModal({ open, onClose, onJugadorCreado }) {
             <Campo label="Dirección">
               <input className={inputClass} value={form.direccion} onChange={(e) => actualizarCampo("direccion", e.target.value)} />
             </Campo>
-            
-            {/*
-            <Campo label="Ruta documento">
-              <input className={inputClass} value={form.rutaDocumento} onChange={(e) => actualizarCampo("rutaDocumento", e.target.value)} />
-            </Campo>
-            */}
 
             <Campo label="Cuota anual">
               <input

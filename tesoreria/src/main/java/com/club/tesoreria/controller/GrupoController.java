@@ -22,13 +22,13 @@ public class GrupoController {
     private GrupoService grupoService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR', 'TESORERO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR', 'TESORERO','OWNER')")
     public List<GrupoResponseDto> listar() {
         return grupoService.listarGruposDelUsuario();
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR','OWNER')")
     public GrupoResponseDto actualizarGrupo(
             @PathVariable Long id,
             @Valid @RequestBody GrupoCrearDto request
@@ -37,13 +37,13 @@ public class GrupoController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR','OWNER')")
     public GrupoResponseDto crearGrupo(@Valid @RequestBody GrupoCrearDto request) {
         return grupoService.crearGrupo(request);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','OWNER')")
     public void eliminar(@PathVariable Long id) {
         grupoRepository.deleteById(id);
     }

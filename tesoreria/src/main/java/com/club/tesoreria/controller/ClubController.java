@@ -35,19 +35,19 @@ public class ClubController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','OWNER')")
     public ResponseEntity<List<Club>> listar() {
         return ResponseEntity.ok(clubRepository.findAll());
     }
 
     @GetMapping("/actual")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','OWNER')")
     public ClubResponseDto obtenerClubActual() {
         return clubService.obtenerClubActual();
     }
 
     @PutMapping("/actual")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','OWNER')")
     public ClubResponseDto actualizarClubActual(
             @Valid @RequestBody ClubActualizarDto request
     ) {

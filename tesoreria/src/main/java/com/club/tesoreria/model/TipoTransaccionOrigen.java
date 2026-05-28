@@ -6,5 +6,4 @@ public enum TipoTransaccionOrigen {
     CLUB,
     CAMPUS,
     OTROS
-    
 }

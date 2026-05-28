@@ -33,8 +33,7 @@ public class JugadorCrearDto {
     @PositiveOrZero(message = "La cuota anual debe ser mayor a 0.")
     private Double cuotaAnual;
 
-    @NotBlank
-    private String rutaDocumento;
+    private String rutaDocumento = "";
 
     @NotNull
     private TipoRol rol;

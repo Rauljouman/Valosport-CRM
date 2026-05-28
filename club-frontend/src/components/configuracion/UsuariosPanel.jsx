@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "../../store/authStore";
 import axiosClient from "../../api/axiosClient";
 import CrearUsuarioModal from "./CrearUsuarioModal";
-import { UserPlus, Trash2, Pencil  } from "lucide-react";
 import EditarUsuarioModal from "./EditarUsuarioModal";
+import { UserPlus, Trash2, Pencil } from "lucide-react";
 
 function UsuariosPanel() {
   const [usuarios, setUsuarios] = useState([]);
@@ -13,7 +13,9 @@ function UsuariosPanel() {
   const [usuarioAEliminar, setUsuarioAEliminar] = useState(null);
   const [usuarioAEditar, setUsuarioAEditar] = useState(null);
   const [eliminando, setEliminando] = useState(false);
+
   const emailActual = useAuthStore((state) => state.email);
+  const rolActual = useAuthStore((state) => state.rol);
   const logout = useAuthStore((state) => state.logout);
 
   const cargarUsuarios = async () => {
@@ -31,7 +33,40 @@ function UsuariosPanel() {
     }
   };
 
+  useEffect(() => {
+    cargarUsuarios();
+  }, []);
+
+  const puedeEditarUsuario = (usuario) => {
+    if (usuario.rol === "OWNER") return false;
+    return rolActual === "OWNER" || rolActual === "ADMIN";
+  };
+
+  const puedeEliminarUsuario = (usuario) => {
+    if (usuario.email === emailActual) return false;
+    if (usuario.rol === "OWNER") return false;
+
+    if (rolActual === "OWNER") return true;
+
+    if (rolActual === "ADMIN" && usuario.rol !== "ADMIN") {
+      return true;
+    }
+
+    return false;
+  };
+
+  const puedeCambiarRol = (usuario) => {
+    if (usuario.rol === "OWNER") return false;
+    return rolActual === "OWNER" || rolActual === "ADMIN";
+  };
+
   const cambiarRol = async (usuarioId, nuevoRol, emailUsuario) => {
+    if (nuevoRol === "OWNER") {
+      alert("No puedes asignar el rol OWNER desde este panel.");
+      cargarUsuarios();
+      return;
+    }
+
     try {
       await axiosClient.put(`/usuarios/${usuarioId}/rol`, {
         rol: nuevoRol,
@@ -47,7 +82,11 @@ function UsuariosPanel() {
       cargarUsuarios();
     } catch (error) {
       console.error(error);
-      alert("No se ha podido cambiar el rol.");
+      alert(
+        error.response?.data?.message ||
+          "No se ha podido cambiar el rol."
+      );
+      cargarUsuarios();
     }
   };
 
@@ -71,10 +110,6 @@ function UsuariosPanel() {
       setEliminando(false);
     }
   };
-
-  useEffect(() => {
-    cargarUsuarios();
-  }, []);
 
   return (
     <>
@@ -137,11 +172,15 @@ function UsuariosPanel() {
                       <td className="px-5 py-4">
                         <select
                           value={usuario.rol}
+                          disabled={!puedeCambiarRol(usuario)}
                           onChange={(e) =>
-                            cambiarRol(usuario.id, e.target.value,usuario.email)
+                            cambiarRol(usuario.id, e.target.value, usuario.email)
                           }
-                          className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 outline-none focus:border-[#4ED4D4] focus:ring-2 focus:ring-[#4ED4D4]/20"
+                          className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 outline-none focus:border-[#4ED4D4] focus:ring-2 focus:ring-[#4ED4D4]/20 disabled:bg-slate-100 disabled:text-slate-400"
                         >
+                          {usuario.rol === "OWNER" && (
+                            <option value="OWNER">Owner</option>
+                          )}
                           <option value="ADMIN">Admin</option>
                           <option value="COORDINADOR">Coordinador</option>
                           <option value="TESORERO">Tesorero</option>
@@ -154,16 +193,18 @@ function UsuariosPanel() {
 
                       <td className="px-5 py-4">
                         <div className="flex justify-end gap-1">
-                          <button
-                            type="button"
-                            onClick={() => setUsuarioAEditar(usuario)}
-                            title="Editar usuario"
-                            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-[#0F766E]"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </button>
+                          {puedeEditarUsuario(usuario) && (
+                            <button
+                              type="button"
+                              onClick={() => setUsuarioAEditar(usuario)}
+                              title="Editar usuario"
+                              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-[#0F766E]"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </button>
+                          )}
 
-                          {usuario.email !== emailActual && usuario.rol !== "ADMIN" && (
+                          {puedeEliminarUsuario(usuario) && (
                             <button
                               type="button"
                               onClick={() => setUsuarioAEliminar(usuario)}
@@ -192,7 +233,7 @@ function UsuariosPanel() {
           </div>
         )}
       </section>
-        
+
       {usuarioAEliminar && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div
@@ -241,7 +282,7 @@ function UsuariosPanel() {
         usuario={usuarioAEditar}
         onUsuarioActualizado={cargarUsuarios}
       />
-      
+
       <CrearUsuarioModal
         open={crearOpen}
         onClose={() => setCrearOpen(false)}

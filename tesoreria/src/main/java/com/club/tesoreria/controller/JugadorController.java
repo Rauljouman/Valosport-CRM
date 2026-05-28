@@ -29,19 +29,19 @@ public class JugadorController {
     private JugadorService jugadorService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR','OWNER')")
     public JugadorResponseDto crear(@Valid @RequestBody JugadorCrearDto request) {
         return jugadorService.registrarJugador(request);
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR', 'TESORERO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR', 'TESORERO','OWNER')")
     public List<JugadorResponseDto> listarTodos(){
         return jugadorService.listarJugadores();
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR','OWNER')")
     public JugadorResponseDto actualizar(
             @PathVariable Long id,
             @RequestBody Jugador nuevosDatos
@@ -50,7 +50,7 @@ public class JugadorController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','OWNER')")
     public String eliminar(@PathVariable Long id) {
         jugadorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Jugador no existe"));
@@ -61,13 +61,13 @@ public class JugadorController {
         
 
     @GetMapping("/por-equipo/{grupoId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR', 'TESORERO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR', 'TESORERO','OWNER')")
     public List<Jugador> listarPorEquipo(@PathVariable Long grupoId) {
         return jugadorRepository.findByGrupoId(grupoId);
     }
 
     @GetMapping("/filtrar")
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR', 'TESORERO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR', 'TESORERO','OWNER')")
     public Page<Jugador> filtrarJugadores(
             @RequestParam(required = false) String nombre,
             @RequestParam(required = false) String apellido,

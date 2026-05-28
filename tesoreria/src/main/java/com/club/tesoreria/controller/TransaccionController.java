@@ -27,7 +27,7 @@ public class TransaccionController {
     private TesoreriaService tesoreriaService;
 
     @GetMapping("/filtrar")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TESORERO','COORDINADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TESORERO','COORDINADOR','OWNER')")
     public Page<TransaccionResponseDto> filtrarTransacciones(
             @RequestParam(required = false) TipoTransaccion tipo,
             @RequestParam(required = false) TipoTransaccionOrigen origen,
@@ -63,13 +63,13 @@ public class TransaccionController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'TESORERO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TESORERO','OWNER')")
     public TransaccionResponseDto crear(@Valid @RequestBody TransaccionCrearDto request) {
         return tesoreriaService.registrarPago(request);
     }
 
     @GetMapping("/balance")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TESORERO','COORDINADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TESORERO','COORDINADOR','OWNER')")
     public Double verBalanceTotalClub() {
         return tesoreriaService.obtenerBalanceClubUsuarioActual();
     }

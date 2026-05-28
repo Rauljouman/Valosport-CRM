@@ -59,7 +59,7 @@ public class JugadorService {
         jugador.setFechaNacimiento(request.getFechaNacimiento());
         jugador.setCuotaAnual(request.getCuotaAnual());
         jugador.setSaldoPendiente(request.getCuotaAnual());
-        jugador.setRutaDocumento(request.getRutaDocumento());
+        jugador.setRutaDocumento(request.getRutaDocumento() != null ? request.getRutaDocumento() : "");
         jugador.setRol(request.getRol());
         jugador.setEstatus(request.getEstatus());
         jugador.setGrupo(grupo);

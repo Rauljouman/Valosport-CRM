@@ -47,7 +47,7 @@ function Sidebar({ onNavigate }) {
 
   const rolUsuario = useAuthStore((state) => state.rol);
   const itemsVisibles = menuItems.filter((item) => {
-    if (item.adminOnly && rolUsuario !== "ADMIN") {
+    if (item.adminOnly && rolUsuario !== "ADMIN" && rolUsuario !== "OWNER") {
       return false;
     }
 

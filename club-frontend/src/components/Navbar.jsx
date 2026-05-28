@@ -18,10 +18,12 @@ function Navbar({
   const esAdmin = rol === "ADMIN";
   const esTesorero = rol === "TESORERO";
   const esCoordinador = rol === "COORDINADOR";
+  const esOwner = rol === "OWNER";
 
-  const puedeGestionarGrupos = esAdmin || esCoordinador;
-  const puedeGestionarJugadores = esAdmin || esCoordinador;
-  const puedeCrearTransacciones = esAdmin || esTesorero;
+  const puedeGestionarGrupos = esAdmin || esOwner || esCoordinador;
+  const puedeGestionarJugadores = esAdmin || esOwner || esCoordinador;
+  const puedeCrearTransacciones = esAdmin || esOwner || esTesorero;
+  
 
   const handleLogout = () => {
     logout();

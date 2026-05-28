@@ -20,19 +20,19 @@ public class UsuarioSistemaController {
     private final UsuarioSistemaService usuarioSistemaService;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','OWNER')")
     public UsuarioResponseDto crearUsuario(@Valid @RequestBody UsuarioCrearDto request) {
         return usuarioSistemaService.crearUsuario(request);
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','OWNER')")
     public List<UsuarioResponseDto> listarUsuarios() {
         return usuarioSistemaService.listarUsuariosClubActual();
     }
 
     @PutMapping("/{id}/rol")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','OWNER')")
     public UsuarioResponseDto actualizarRol(
             @PathVariable Long id,
             @Valid @RequestBody UsuarioRolActualizarDto request
@@ -41,7 +41,7 @@ public class UsuarioSistemaController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','OWNER')")
     public UsuarioResponseDto actualizarUsuario(
             @PathVariable Long id,
             @Valid @RequestBody UsuarioActualizarDto request
@@ -50,7 +50,7 @@ public class UsuarioSistemaController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','OWNER')")
     public void eliminarUsuario(@PathVariable Long id) {
         usuarioSistemaService.eliminarUsuario(id);
     }

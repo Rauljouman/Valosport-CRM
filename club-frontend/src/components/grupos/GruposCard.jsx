@@ -20,8 +20,8 @@ function GrupoCard({ grupo, onGrupoActualizado }) {
   const [editarOpen, setEditarOpen] = useState(false);
   const rolUsuario = useAuthStore((state) => state.rol);
 
-  const puedeEditarGrupo = rolUsuario === "ADMIN" || rolUsuario === "COORDINADOR";
-  const puedeEliminarGrupo = rolUsuario === "ADMIN";
+  const puedeEditarGrupo = rolUsuario === "ADMIN" || rolUsuario === "COORDINADOR" || rolUsuario === "OWNER";
+  const puedeEliminarGrupo = rolUsuario === "ADMIN" || rolUsuario === "COORDINADOR" || rolUsuario === "OWNER";;
 
   const nombre = grupo.nombre ?? "Grupo sin nombre";
   const categoria = grupo.categoria ?? "Sin categoría";
