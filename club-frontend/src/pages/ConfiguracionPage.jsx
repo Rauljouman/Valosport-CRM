@@ -5,6 +5,8 @@ import {
   Info,
 } from "lucide-react";
 import EditarClubModal from "../components/configuracion/EditarClubModal";
+import UsuariosPanel from "../components/configuracion/UsuariosPanel";
+import InfoSistemaPanel from "../components/configuracion/InfoSistemaPanel";
 
 function ConfiguracionPage() {
   const [editarClubOpen, setEditarClubOpen] = useState(false);
@@ -17,29 +19,9 @@ function ConfiguracionPage() {
         </h1>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <ConfigCard
-          icon={<Users className="h-5 w-5" />}
-          title="Usuarios y roles"
-          text="Gestiona los usuarios que pueden acceder al sistema y controla sus permisos."
-          button="Gestionar usuarios"
-        />
+      <UsuariosPanel />
 
-        <ConfigCard
-          icon={<Building2 className="h-5 w-5" />}
-          title="Datos del club"
-          text="Edita la información principal del club como nombre, correo o ciudad."
-          button="Editar club"
-          onClick={() => setEditarClubOpen(true)}
-        />
-
-        <ConfigCard
-          icon={<Info className="h-5 w-5" />}
-          title="Información del sistema"
-          text="Consulta información general sobre la aplicación y el estado actual del sistema."
-          button="Ver información"
-        />
-      </section>
+      <InfoSistemaPanel />
 
       <EditarClubModal
         open={editarClubOpen}
