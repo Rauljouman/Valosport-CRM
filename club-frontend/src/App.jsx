@@ -8,11 +8,13 @@ import TransaccionesPage from "./pages/TransaccionesPage";
 import RoleRoute from "./components/RoleRoute";
 import SugerenciaPage from "./pages/Sugerencias.Page";
 import ConfiguracioPage from "./pages/ConfiguracionPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
 
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Navigate to="/dashboard" replace />} />
@@ -33,15 +35,6 @@ function App() {
           element={
             <RoleRoute allowedRoles={["ADMIN", "COORDINADOR", "TESORERO"]}>
               <GruposPage />
-            </RoleRoute>
-          }
-        />
-
-        <Route
-          path="transacciones"
-          element={
-            <RoleRoute allowedRoles={["ADMIN", "TESORERO","COORDINADOR"]}>
-              <TransaccionesPage />
             </RoleRoute>
           }
         />

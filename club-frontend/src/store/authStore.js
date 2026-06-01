@@ -39,6 +39,27 @@ export const useAuthStore = create(
         return data;
       },
 
+      forgotPassword: async (email) => {
+        const response = await axiosClient.post("/auth/forgot-password", { email });
+        return response.data;
+      },
+
+      resetPassword: async (token, nuevaPassword) => {
+        const response = await axiosClient.post("/auth/reset-password", {
+          token,
+          nuevaPassword,
+        });
+        return response.data;
+      },
+
+      changePassword: async (passwordActual, nuevaPassword) => {
+        const response = await axiosClient.post("/auth/cambiar-password", {
+          passwordActual,
+          nuevaPassword,
+        });
+        return response.data;
+      },
+
       logout: () => {
         set({
           token: null,

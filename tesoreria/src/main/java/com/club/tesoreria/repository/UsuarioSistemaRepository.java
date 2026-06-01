@@ -17,4 +17,6 @@ public interface UsuarioSistemaRepository extends JpaRepository<UsuarioSistema, 
     boolean existsByEmail(String email);
     
     long countByClubIdAndRol(Long clubId, TipoRolSistema rol);
+
+    Optional<UsuarioSistema> findByResetPasswordToken(String resetPasswordToken);
 }
