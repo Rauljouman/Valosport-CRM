@@ -55,6 +55,7 @@ function DashboardPage() {
 
       <MonthlyChart
         graficoData={graficoData}
+        transacciones={transacciones}
         rangoMeses={rangoMeses}
         setRangoMeses={setRangoMeses}
       />

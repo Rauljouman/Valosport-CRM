@@ -10,8 +10,8 @@ function LoginPage() {
 
   const [mode, setMode] = useState("login");
 
-  const [email, setEmail] = useState("admin@club.com");
-  const [password, setPassword] = useState("123456");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const [resetEmail, setResetEmail] = useState("");
 
