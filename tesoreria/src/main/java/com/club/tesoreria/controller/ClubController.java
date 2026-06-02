@@ -2,10 +2,18 @@ package com.club.tesoreria.controller;
 
 import com.club.tesoreria.model.Club;
 import com.club.tesoreria.repository.ClubRepository;
+import com.club.tesoreria.service.ClubService;
+
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.club.tesoreria.dto.ClubActualizarDto;
+import com.club.tesoreria.dto.ClubResponseDto;
+import com.club.tesoreria.service.ClubService;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -13,6 +21,9 @@ import java.util.List;
 @RequestMapping("/api/clubes")
 @RequiredArgsConstructor
 public class ClubController {
+
+    @Autowired
+    private ClubService clubService;
 
     private final ClubRepository clubRepository;
 
@@ -24,8 +35,22 @@ public class ClubController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','OWNER')")
     public ResponseEntity<List<Club>> listar() {
         return ResponseEntity.ok(clubRepository.findAll());
+    }
+
+    @GetMapping("/actual")
+    @PreAuthorize("hasAnyRole('ADMIN','OWNER')")
+    public ClubResponseDto obtenerClubActual() {
+        return clubService.obtenerClubActual();
+    }
+
+    @PutMapping("/actual")
+    @PreAuthorize("hasAnyRole('ADMIN','OWNER')")
+    public ClubResponseDto actualizarClubActual(
+            @Valid @RequestBody ClubActualizarDto request
+    ) {
+        return clubService.actualizarClubActual(request);
     }
 }

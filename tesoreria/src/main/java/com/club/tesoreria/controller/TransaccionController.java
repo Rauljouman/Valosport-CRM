@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
 
@@ -26,7 +27,7 @@ public class TransaccionController {
     private TesoreriaService tesoreriaService;
 
     @GetMapping("/filtrar")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TESORERO','COORDINADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TESORERO','COORDINADOR','OWNER')")
     public Page<TransaccionResponseDto> filtrarTransacciones(
             @RequestParam(required = false) TipoTransaccion tipo,
             @RequestParam(required = false) TipoTransaccionOrigen origen,
@@ -52,19 +53,23 @@ public class TransaccionController {
         filtro.setCantidadMax(cantidadMax);
         filtro.setTitulo(titulo);
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(
+            page, 
+            size,
+            Sort.by("fecha").descending()
+            .and(Sort.by(Sort.Direction.DESC, "id")));
 
         return tesoreriaService.filtrarTransacciones(filtro, pageable);
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'TESORERO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TESORERO','OWNER')")
     public TransaccionResponseDto crear(@Valid @RequestBody TransaccionCrearDto request) {
         return tesoreriaService.registrarPago(request);
     }
 
     @GetMapping("/balance")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TESORERO','COORDINADOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TESORERO','COORDINADOR','OWNER')")
     public Double verBalanceTotalClub() {
         return tesoreriaService.obtenerBalanceClubUsuarioActual();
     }

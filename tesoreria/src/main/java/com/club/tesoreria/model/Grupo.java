@@ -17,5 +17,8 @@ public class Grupo{
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Club club;  
+
+    @Column(length = 50)
+    private String categoria;
 }
 

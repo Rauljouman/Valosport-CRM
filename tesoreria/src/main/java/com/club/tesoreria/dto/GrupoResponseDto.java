@@ -13,4 +13,10 @@ public class GrupoResponseDto {
     private String nombre;
     private Long clubId;
     private String clubNombre;
+
+    private String categoria;
+    private Integer numeroJugadores;
+    private String entrenadorNombre;
+    private Double totalPendiente;
+    private Double totalPagado;
 }

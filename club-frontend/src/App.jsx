@@ -6,13 +6,20 @@ import JugadoresPage from "./pages/JugadoresPage";
 import GruposPage from "./pages/GruposPage";
 import TransaccionesPage from "./pages/TransaccionesPage";
 import RoleRoute from "./components/RoleRoute";
+import SugerenciaPage from "./pages/Sugerencias.Page";
+import ConfiguracioPage from "./pages/ConfiguracionPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
+import MiCuentaPage from "./pages/MiCuentaPage";
 
 function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
 
       <Route path="/" element={<MainLayout />}>
+
+
         <Route index element={<Navigate to="/dashboard" replace />} />
 
         <Route path="dashboard" element={<DashboardPage />} />
@@ -20,7 +27,7 @@ function App() {
         <Route
           path="jugadores"
           element={
-            <RoleRoute allowedRoles={["ADMIN", "COORDINADOR", "TESORERO"]}>
+            <RoleRoute allowedRoles={["OWNER", "ADMIN", "COORDINADOR", "TESORERO"]}>
               <JugadoresPage />
             </RoleRoute>
           }
@@ -29,7 +36,7 @@ function App() {
         <Route
           path="grupos"
           element={
-            <RoleRoute allowedRoles={["ADMIN", "COORDINADOR", "TESORERO"]}>
+            <RoleRoute allowedRoles={["OWNER", "ADMIN", "COORDINADOR", "TESORERO"]}>
               <GruposPage />
             </RoleRoute>
           }
@@ -38,14 +45,37 @@ function App() {
         <Route
           path="transacciones"
           element={
-            <RoleRoute allowedRoles={["ADMIN", "TESORERO","COORDINADOR"]}>
+            <RoleRoute allowedRoles={["OWNER", "ADMIN", "TESORERO", "COORDINADOR"]}>
               <TransaccionesPage />
             </RoleRoute>
           }
         />
+
+        <Route
+          path="configuracion"
+          element={
+            <RoleRoute allowedRoles={["OWNER"]}>
+              <ConfiguracioPage />
+            </RoleRoute>
+          }
+        />
+
+        <Route
+          path="sugerencias"
+          element={
+            <RoleRoute allowedRoles={["OWNER", "ADMIN", "TESORERO", "COORDINADOR"]}>
+              <SugerenciaPage />
+            </RoleRoute>
+          }
+        />
+
+        <Route
+          path="mi-cuenta"
+          element={<MiCuentaPage />}
+        />
+
       </Route>
 
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }

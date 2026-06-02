@@ -4,7 +4,9 @@ import { useAuthStore } from "../store/authStore";
 
 function LoginPage() {
   const navigate = useNavigate();
+
   const login = useAuthStore((state) => state.login);
+  const forgotPassword = useAuthStore((state) => state.forgotPassword);
 
   const [mode, setMode] = useState("login");
 
@@ -43,13 +45,22 @@ function LoginPage() {
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
-      setError("Email o contraseña incorrectos.");
+
+      const status = err.response?.status;
+
+      if (status === 429) {
+        setError("Demasiados intentos. Espera unos minutos antes de volver a probar.");
+      } else if (status === 423) {
+        setError("La cuenta está bloqueada temporalmente por demasiados intentos fallidos.");
+      } else {
+        setError("Email o contraseña incorrectos.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleForgotPassword = (e) => {
+  const handleForgotPassword = async (e) => {
     e.preventDefault();
     resetMessages();
 
@@ -58,9 +69,26 @@ function LoginPage() {
       return;
     }
 
-    setSuccessMessage(
-      "Si el correo existe, recibirás instrucciones para restablecer tu contraseña."
-    );
+    setLoading(true);
+
+    try {
+      await forgotPassword(resetEmail);
+      setSuccessMessage(
+        "Si el correo existe, recibirás instrucciones para restablecer tu contraseña."
+      );
+    } catch (err) {
+      console.error(err);
+
+      const status = err.response?.status;
+
+      if (status === 429) {
+        setError("Has solicitado demasiados correos. Espera unos minutos.");
+      } else {
+        setError("No se ha podido enviar el correo.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAccessRequest = (e) => {
@@ -195,9 +223,10 @@ function LoginPage() {
 
             <button
               type="submit"
-              className="w-full rounded-xl bg-blue-700 text-white font-bold py-3 hover:bg-blue-800 transition select-none"
+              disabled={loading}
+              className="w-full rounded-xl bg-blue-700 text-white font-bold py-3 hover:bg-blue-800 disabled:opacity-60 transition select-none"
             >
-              Enviar instrucciones
+              {loading ? "Enviando..." : "Enviar enlace"}
             </button>
 
             <button
@@ -276,6 +305,8 @@ function LoginPage() {
               >
                 <option value="COORDINADOR">Coordinador</option>
                 <option value="TESORERO">Tesorero</option>
+                <option value="OWNER">Owner</option>
+                <option value="ADMIN  ">Admin</option>
               </select>
             </div>
 
