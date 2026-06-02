@@ -1,0 +1,154 @@
+Valosport CRM
+Descripción del proyecto
+
+Valosport CRM es una aplicación web desarrollada con el objetivo de facilitar la gestión económica y organizativa de clubes deportivos. El sistema permite centralizar la información de jugadores, equipos, usuarios y movimientos económicos en una única plataforma, evitando el uso de hojas de cálculo y procesos manuales.
+
+La aplicación ha sido diseñada siguiendo una arquitectura cliente-servidor, utilizando React para el frontend y Spring Boot para el backend, con PostgreSQL como base de datos.
+
+El proyecto surge de la necesidad de disponer de una herramienta sencilla y accesible para gestionar las cuotas de los jugadores, controlar los pagos realizados, organizar los diferentes equipos del club y asignar responsabilidades a distintos usuarios según su función dentro de la entidad.
+
+Objetivos
+
+Los principales objetivos del proyecto son:
+
+Centralizar la gestión de jugadores y equipos.
+Registrar y controlar los movimientos económicos del club.
+Gestionar diferentes tipos de usuarios mediante roles.
+Facilitar el seguimiento de pagos y cuotas pendientes.
+Mejorar la organización interna del club.
+Disponer de una interfaz moderna, intuitiva y adaptada a dispositivos móviles.
+Funcionalidades implementadas
+Gestión de jugadores
+Alta de nuevos jugadores.
+Edición de información personal.
+Eliminación de jugadores.
+Asignación a grupos o equipos.
+Gestión de cuotas anuales.
+Control del saldo pendiente de pago.
+Gestión de grupos
+Creación de grupos o equipos.
+Edición de grupos existentes.
+Eliminación de grupos.
+Asociación de jugadores a cada grupo.
+Gestión económica
+Registro de ingresos y gastos.
+Historial completo de transacciones.
+Filtrado de movimientos.
+Cálculo automático de importes pendientes.
+Balance económico general.
+Gestión de usuarios
+Creación de usuarios del sistema.
+Edición de usuarios.
+Eliminación de usuarios.
+Cambio de roles.
+Protección de permisos según el rol asignado.
+Sistema de roles
+
+La aplicación incorpora un sistema de control de acceso basado en roles:
+
+OWNER
+
+Responsable principal del club.
+
+Permisos:
+
+Gestión completa de usuarios.
+Gestión de jugadores.
+Gestión de grupos.
+Gestión de transacciones.
+Configuración del club.
+ADMIN
+
+Administrador del club.
+
+Permisos:
+
+Gestión de jugadores.
+Gestión de grupos.
+Gestión de transacciones.
+Gestión parcial de usuarios.
+COORDINADOR
+
+Responsable deportivo.
+
+Permisos:
+
+Gestión de jugadores.
+Gestión de grupos.
+TESORERO
+
+Responsable económico.
+
+Permisos:
+
+Gestión de transacciones.
+Consulta de información económica.
+Configuración del club
+
+La aplicación permite:
+
+Modificar los datos básicos del club.
+Actualizar información corporativa.
+Gestionar usuarios asociados al club.
+Sistema de sugerencias
+
+Se ha incorporado un apartado específico para el envío de sugerencias o incidencias.
+
+Las sugerencias son enviadas mediante correo electrónico para facilitar la comunicación entre los usuarios y los responsables del sistema.
+
+Seguridad implementada
+
+Durante el desarrollo se han aplicado diferentes medidas de seguridad:
+
+Autenticación mediante JWT.
+Contraseñas almacenadas mediante BCrypt.
+Control de acceso basado en roles.
+Protección de endpoints mediante Spring Security.
+Validación de datos en frontend y backend.
+Restricciones de acceso según permisos.
+Protección frente a modificaciones no autorizadas.
+Tecnologías utilizadas
+Frontend
+React
+React Router
+Zustand
+Axios
+Tailwind CSS
+Lucide React
+Backend
+Spring Boot
+Spring Security
+Spring Data JPA
+JWT
+Java Mail Sender
+Base de datos
+PostgreSQL
+Supabase
+Arquitectura
+
+El proyecto sigue una arquitectura cliente-servidor compuesta por:
+
+Frontend (React)
+↓
+API REST (Spring Boot)
+↓
+Base de datos PostgreSQL (Supabase)
+
+Esta separación permite mantener una estructura modular, escalable y fácil de mantener.
+
+Posibles mejoras futuras
+
+Aunque el proyecto cumple los objetivos definidos inicialmente, existen diversas líneas de mejora:
+
+Sistema de recuperación de contraseña.
+Sistema de invitaciones mediante correo electrónico.
+Gestión multi-club avanzada.
+Panel de administración global.
+Notificaciones automáticas.
+Informes y estadísticas avanzadas.
+Aplicación móvil nativa.
+Conclusiones
+
+El desarrollo de Valosport CRM ha permitido aplicar conocimientos relacionados con el desarrollo web full stack, bases de datos, seguridad, diseño de interfaces y control de acceso mediante roles.
+
+El resultado es una aplicación funcional que cubre las necesidades principales de gestión de un club deportivo, ofreciendo una solución centralizada, organizada y fácilmente ampliable para futuras versiones

@@ -8,6 +8,9 @@ import com.club.tesoreria.dto.auth.LoginResponseDto;
 import com.club.tesoreria.model.UsuarioSistema;
 import com.club.tesoreria.repository.UsuarioSistemaRepository;
 import com.club.tesoreria.security.JwtService;
+import com.club.tesoreria.security.LoginAttemptService;
+import jakarta.servlet.http.HttpServletRequest;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.mail.javamail.JavaMailSender;
@@ -27,28 +30,41 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final JavaMailSender mailSender;
+    private final LoginAttemptService loginAttemptService;
 
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
-    public LoginResponseDto login(LoginRequestDto request) {
-        UsuarioSistema usuario = usuarioSistemaRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    public LoginResponseDto login(LoginRequestDto request, HttpServletRequest httpRequest) {
+        String ip = obtenerIpCliente(httpRequest);
 
-        if (!passwordEncoder.matches(request.getPassword(), usuario.getPasswordHash())) {
-            throw new RuntimeException("Contraseña incorrecta");
+        loginAttemptService.checkIfBlocked(request.getEmail(), ip);
+
+        try {
+            UsuarioSistema usuario = usuarioSistemaRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new RuntimeException("Credenciales incorrectas"));
+
+            if (!passwordEncoder.matches(request.getPassword(), usuario.getPasswordHash())) {
+                throw new RuntimeException("Credenciales incorrectas");
+            }
+
+            loginAttemptService.loginSucceeded(request.getEmail(), ip);
+
+            String token = jwtService.generarToken(usuario);
+
+            return new LoginResponseDto(
+                    token,
+                    usuario.getEmail(),
+                    usuario.getNombre(),
+                    usuario.getRol(),
+                    usuario.getClub().getId(),
+                    usuario.getClub().getNombre()
+            );
+
+        } catch (RuntimeException ex) {
+            loginAttemptService.loginFailed(request.getEmail(), ip);
+            throw new RuntimeException("Credenciales incorrectas");
         }
-
-        String token = jwtService.generarToken(usuario);
-
-        return new LoginResponseDto(
-                token,
-                usuario.getEmail(),
-                usuario.getNombre(),
-                usuario.getRol(),
-                usuario.getClub().getId(),
-                usuario.getClub().getNombre()
-        );
     }
 
     public void cambiarPassword(String email, CambiarPasswordRequestDto request) {
@@ -114,5 +130,15 @@ public class AuthService {
         usuario.setResetPasswordTokenExpiry(null);
 
         usuarioSistemaRepository.save(usuario);
+    }
+
+    private String obtenerIpCliente(HttpServletRequest request) {
+        String forwardedFor = request.getHeader("X-Forwarded-For");
+
+        if (forwardedFor != null && !forwardedFor.isBlank()) {
+            return forwardedFor.split(",")[0].trim();
+        }
+
+        return request.getRemoteAddr();
     }
 }

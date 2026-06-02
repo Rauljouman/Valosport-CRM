@@ -15,7 +15,7 @@ public class SugerenciaController {
     private final SugerenciaService sugerenciaService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR', 'TESORERO',,'OWNER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDINADOR', 'TESORERO','OWNER')")
     public String enviarSugerencia(@Valid @RequestBody SugerenciaDto request) {
         sugerenciaService.enviarSugerencia(request);
         return "Sugerencia enviada correctamente.";

@@ -45,7 +45,16 @@ function LoginPage() {
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
-      setError("Email o contraseña incorrectos.");
+
+      const status = err.response?.status;
+
+      if (status === 429) {
+        setError("Demasiados intentos. Espera unos minutos antes de volver a probar.");
+      } else if (status === 423) {
+        setError("La cuenta está bloqueada temporalmente por demasiados intentos fallidos.");
+      } else {
+        setError("Email o contraseña incorrectos.");
+      }
     } finally {
       setLoading(false);
     }
@@ -69,7 +78,14 @@ function LoginPage() {
       );
     } catch (err) {
       console.error(err);
-      setError("No se ha podido enviar el correo.");
+
+      const status = err.response?.status;
+
+      if (status === 429) {
+        setError("Has solicitado demasiados correos. Espera unos minutos.");
+      } else {
+        setError("No se ha podido enviar el correo.");
+      }
     } finally {
       setLoading(false);
     }
