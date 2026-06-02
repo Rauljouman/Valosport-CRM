@@ -6,7 +6,8 @@ import {
   Layers,
   ReceiptText,
   Settings,
-  MessageCircleMore
+  MessageCircleMore,
+  User
 } from "lucide-react";
 
 const menuItems = [
@@ -29,6 +30,12 @@ const menuItems = [
     label: "Transacciones",
     path: "/transacciones",
     icon: ReceiptText,
+  },
+  {
+    label: "Mi perfil",
+    path: "/mi-cuenta",
+    icon: User,
+    roles: ["OWNER", "ADMIN", "COORDINADOR", "TESORERO"],
   },
   {
     label: "Configuración",
