@@ -17,7 +17,7 @@ function MonthlyChart({ graficoData, rangoMeses, setRangoMeses }) {
         <div>
           <h2 className="font-black text-slate-900">Evolución mensual</h2>
           <p className="text-sm text-slate-500">
-            Comparativa de ingresos por jugadores, ingresos del club y gastos.
+            Comparativa de ingresos por jugadores, ingresos y gastos del club.
           </p>
         </div>
 
