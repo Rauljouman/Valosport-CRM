@@ -43,7 +43,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
@@ -53,6 +53,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
+                                "/",
+                                "/api/health",
                                 "/api/auth/login",
                                 "/api/auth/forgot-password",
                                 "/api/auth/reset-password"
@@ -62,15 +64,15 @@ public class SecurityConfig {
                 .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
-    }
+        }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+        public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of(
+        configuration.setAllowedOriginPatterns(List.of(
                 "http://localhost:5173",
-                "\"https://*.vercel.app\""
+                "https://*.vercel.app"
         ));
 
         configuration.setAllowedMethods(List.of(
@@ -83,7 +85,9 @@ public class SecurityConfig {
 
         configuration.setAllowedHeaders(List.of(
                 "Authorization",
-                "Content-Type"
+                "Content-Type",
+                "Accept",
+                "Origin"
         ));
 
         configuration.setAllowCredentials(true);
@@ -92,5 +96,5 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
 
         return source;
-    }
+        }
 }
