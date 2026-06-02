@@ -7,6 +7,7 @@ import com.club.tesoreria.dto.auth.LoginRequestDto;
 import com.club.tesoreria.dto.auth.LoginResponseDto;
 import com.club.tesoreria.service.AuthService;
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -22,9 +23,12 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public LoginResponseDto login(@Valid @RequestBody LoginRequestDto request) {
-        return authService.login(request);
-    }
+        public LoginResponseDto login(
+                @Valid @RequestBody LoginRequestDto request,
+                HttpServletRequest httpRequest
+        ) {
+            return authService.login(request, httpRequest);
+        }
 
     @PostMapping("/cambiar-password")
     public ResponseEntity<String> cambiarPassword(
