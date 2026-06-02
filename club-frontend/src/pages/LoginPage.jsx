@@ -150,7 +150,7 @@ function LoginPage() {
                 className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@club.com"
+                placeholder=""
               />
             </div>
 
@@ -164,7 +164,7 @@ function LoginPage() {
                 className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="123456"
+                placeholder=""
               />
             </div>
 
