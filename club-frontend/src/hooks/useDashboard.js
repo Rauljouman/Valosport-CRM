@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axiosClient from "../api/axiosClient";
 import { formatDateForApi } from "../utils/formatters";
-import { crearMesesBase } from "../utils/dashboardUtils";
+import { crearMesesBase } from "../utils/dashboardutils";
 
 const PAGE_SIZE = 20;
 
