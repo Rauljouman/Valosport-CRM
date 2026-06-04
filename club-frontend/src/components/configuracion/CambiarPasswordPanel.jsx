@@ -1,68 +1,41 @@
 import { useState } from "react";
-import { LockKeyhole } from "lucide-react";
+import { LockKeyhole, Mail } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 
 function CambiarPasswordPanel() {
-  const changePassword = useAuthStore((state) => state.changePassword);
-
-  const [passwordActual, setPasswordActual] = useState("");
-  const [nuevaPassword, setNuevaPassword] = useState("");
-  const [confirmarPassword, setConfirmarPassword] = useState("");
+  const forgotPassword = useAuthStore((state) => state.forgotPassword);
+  const email = useAuthStore((state) => state.email);
 
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const limpiarMensajes = () => {
+  const handleEnviarCorreo = async () => {
     setError("");
     setSuccessMessage("");
-  };
 
-  const limpiarFormulario = () => {
-    setPasswordActual("");
-    setNuevaPassword("");
-    setConfirmarPassword("");
-  };
-
-  const handleCambiarPassword = async (e) => {
-    e.preventDefault();
-    limpiarMensajes();
-
-    if (
-      !passwordActual.trim() ||
-      !nuevaPassword.trim() ||
-      !confirmarPassword.trim()
-    ) {
-      setError("Completa todos los campos.");
-      return;
-    }
-
-    if (nuevaPassword.length < 6) {
-      setError("La nueva contraseña debe tener al menos 6 caracteres.");
-      return;
-    }
-
-    if (nuevaPassword !== confirmarPassword) {
-      setError("Las contraseñas no coinciden.");
+    if (!email) {
+      setError("No se ha podido obtener el correo asociado a tu cuenta.");
       return;
     }
 
     setLoading(true);
 
     try {
-      await changePassword(passwordActual, nuevaPassword);
+      await forgotPassword(email);
 
-      setSuccessMessage("Contraseña actualizada correctamente.");
-      limpiarFormulario();
+      setSuccessMessage(
+        "Te hemos enviado un correo con instrucciones para cambiar tu contraseña."
+      );
     } catch (err) {
       console.error(err);
 
       const status = err.response?.status;
 
       if (status === 429) {
-        setError("Demasiadas peticiones. Espera unos minutos.");
+        setError("Has solicitado demasiados correos. Espera unos minutos.");
       } else {
-        setError("No se ha podido cambiar la contraseña. Revisa la contraseña actual.");
+        setError("No se ha podido enviar el correo de cambio de contraseña.");
       }
     } finally {
       setLoading(false);
@@ -70,9 +43,9 @@ function CambiarPasswordPanel() {
   };
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-5 flex items-start gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#4ED4D4]/15 text-[#0F766E]">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#4ED4D4]/15 text-[#0F766E]">
           <LockKeyhole size={22} />
         </div>
 
@@ -82,7 +55,8 @@ function CambiarPasswordPanel() {
           </h2>
 
           <p className="mt-1 text-sm text-slate-500">
-            Actualiza tu contraseña de acceso a Valosport CRM.
+            Por seguridad, enviaremos un enlace temporal a tu correo electrónico
+            para que puedas cambiar tu contraseña.
           </p>
         </div>
       </div>
@@ -99,59 +73,17 @@ function CambiarPasswordPanel() {
         </div>
       )}
 
-      <form onSubmit={handleCambiarPassword} className="grid gap-4 md:grid-cols-3">
-        <div>
-          <label className="mb-1 block text-sm font-semibold text-slate-700">
-            Contraseña actual
-          </label>
-
-          <input
-            type="password"
-            value={passwordActual}
-            onChange={(e) => setPasswordActual(e.target.value)}
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-            placeholder="Contraseña actual"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-semibold text-slate-700">
-            Nueva contraseña
-          </label>
-
-          <input
-            type="password"
-            value={nuevaPassword}
-            onChange={(e) => setNuevaPassword(e.target.value)}
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-            placeholder="Nueva contraseña"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-semibold text-slate-700">
-            Confirmar contraseña
-          </label>
-
-          <input
-            type="password"
-            value={confirmarPassword}
-            onChange={(e) => setConfirmarPassword(e.target.value)}
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-            placeholder="Repite la contraseña"
-          />
-        </div>
-
-        <div className="md:col-span-3">
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-xl bg-blue-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-800 disabled:opacity-60"
-          >
-            {loading ? "Actualizando..." : "Cambiar contraseña"}
-          </button>
-        </div>
-      </form>
+      <div className="flex flex-1 items-center justify-center">
+        <button
+          type="button"
+          onClick={handleEnviarCorreo}
+          disabled={loading}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-700 px-6 py-3 text-sm font-bold text-white transition hover:bg-blue-800 disabled:opacity-60"
+        >
+          <Mail size={18} />
+          {loading ? "Enviando correo..." : "Enviar enlace de cambio"}
+        </button>
+      </div>
     </section>
   );
 }

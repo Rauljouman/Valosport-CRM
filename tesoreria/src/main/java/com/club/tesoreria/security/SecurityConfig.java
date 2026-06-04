@@ -53,6 +53,8 @@ public class SecurityConfig {
                                 "/api/auth/forgot-password",
                                 "/api/auth/reset-password"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/solicitudes-acceso").permitAll()
+                        .requestMatchers("/api/solicitudes-acceso/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
