@@ -9,9 +9,6 @@ function RecentTransactionsList({
     <article className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       <div className="p-5 border-b border-slate-200">
         <h2 className="font-black text-slate-900">Últimas transacciones</h2>
-        <p className="text-sm text-slate-500">
-          Se muestran 20 registros por carga mientras haces scroll.
-        </p>
       </div>
 
       <div
