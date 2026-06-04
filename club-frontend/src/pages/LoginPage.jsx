@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import axiosClient from "../api/axiosClient";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -17,8 +18,9 @@ function LoginPage() {
 
   const [requestName, setRequestName] = useState("");
   const [requestEmail, setRequestEmail] = useState("");
+  const [requestPhone, setRequestPhone] = useState("");
   const [requestClub, setRequestClub] = useState("");
-  const [requestRole, setRequestRole] = useState("COORDINADOR");
+  const [requestRole, setRequestRole] = useState("");
   const [requestMessage, setRequestMessage] = useState("");
 
   const [error, setError] = useState("");
@@ -91,34 +93,74 @@ function LoginPage() {
     }
   };
 
-  const handleAccessRequest = (e) => {
+  const handleAccessRequest = async (e) => {
     e.preventDefault();
     resetMessages();
 
-    if (!requestName.trim() || !requestEmail.trim() || !requestClub.trim()) {
-      setError("Completa nombre, email y club para enviar la solicitud.");
+    if (
+      !requestName.trim() ||
+      !requestEmail.trim() ||
+      !requestPhone.trim() ||
+      !requestClub.trim() ||
+      !requestRole.trim()
+    ) {
+      setError("Completa nombre, email, teléfono, club y rol para enviar la solicitud.");
       return;
     }
 
-    setSuccessMessage(
-      "Solicitud enviada. Un administrador revisará tu petición."
-    );
+    setLoading(true);
 
-    setRequestName("");
-    setRequestEmail("");
-    setRequestClub("");
-    setRequestRole("COORDINADOR");
-    setRequestMessage("");
+    try {
+      await axiosClient.post("/solicitudes-acceso", {
+        nombre: requestName,
+        email: requestEmail,
+        telefono: requestPhone,
+        club: requestClub,
+        rol: requestRole,
+        mensaje: requestMessage,
+      });
+
+      setSuccessMessage(
+        "Solicitud enviada. Un administrador revisará tu petición."
+      );
+
+      setRequestName("");
+      setRequestEmail("");
+      setRequestPhone("");
+      setRequestClub("");
+      setRequestRole("");
+      setRequestMessage("");
+    } catch (err) {
+      console.error(err);
+
+      const status = err.response?.status;
+
+      if (status === 429) {
+        setError("Has enviado demasiadas solicitudes. Espera unos minutos.");
+      } else {
+        setError("No se ha podido enviar la solicitud.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-md border border-slate-200 px-8 pt-4 pb-8">
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4 py-6">
+      <div
+        className={`w-full bg-white rounded-3xl shadow-md border border-slate-200 px-6 sm:px-8 pt-4 pb-6 ${
+          mode === "requestAccess" ? "max-w-xl" : "max-w-md"
+        }`}
+      >
         <div className="flex flex-col items-center mb-5">
           <img
             src="/ValosportLogo.png"
             alt="Valosport"
-            className="w-[460px] max-w-none object-contain -mt-16 -mb-20"
+            className={`max-w-none object-contain ${
+              mode === "requestAccess"
+                ? "w-[330px] -mt-10 -mb-12"
+                : "w-[460px] -mt-16 -mb-20"
+            }`}
           />
 
           <p className="text-slate-500 text-center text-sm select-none">
@@ -150,7 +192,6 @@ function LoginPage() {
                 className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder=""
               />
             </div>
 
@@ -164,7 +205,6 @@ function LoginPage() {
                 className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder=""
               />
             </div>
 
@@ -240,57 +280,73 @@ function LoginPage() {
         )}
 
         {mode === "requestAccess" && (
-          <form onSubmit={handleAccessRequest} className="space-y-4">
+          <form onSubmit={handleAccessRequest} className="space-y-3">
             <div>
-              <h1 className="text-xl font-black text-slate-900 mb-2">
+              <h1 className="text-xl font-black text-slate-900 mb-1">
                 Solicitar acceso
               </h1>
 
-              <p className="text-sm text-slate-500 mb-5">
+              <p className="text-sm text-slate-500 mb-4">
                 Rellena tus datos y un administrador revisará tu solicitud.
               </p>
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1 select-none">
-                Nombre completo
-              </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1 select-none">
+                  Nombre completo
+                </label>
 
-              <input
-                type="text"
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                value={requestName}
-                onChange={(e) => setRequestName(e.target.value)}
-                placeholder="Tu nombre"
-              />
-            </div>
+                <input
+                  type="text"
+                  className="w-full rounded-xl border border-slate-300 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={requestName}
+                  onChange={(e) => setRequestName(e.target.value)}
+                  placeholder="Tu nombre"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1 select-none">
-                Email
-              </label>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1 select-none">
+                  Email
+                </label>
 
-              <input
-                type="email"
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                value={requestEmail}
-                onChange={(e) => setRequestEmail(e.target.value)}
-                placeholder="tuemail@club.com"
-              />
-            </div>
+                <input
+                  type="email"
+                  className="w-full rounded-xl border border-slate-300 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={requestEmail}
+                  onChange={(e) => setRequestEmail(e.target.value)}
+                  placeholder="tuemail@club.com"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1 select-none">
-                Club
-              </label>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1 select-none">
+                  Teléfono
+                </label>
 
-              <input
-                type="text"
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                value={requestClub}
-                onChange={(e) => setRequestClub(e.target.value)}
-                placeholder="Nombre del club"
-              />
+                <input
+                  type="tel"
+                  className="w-full rounded-xl border border-slate-300 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={requestPhone}
+                  onChange={(e) => setRequestPhone(e.target.value)}
+                  placeholder="Tu teléfono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1 select-none">
+                  Club
+                </label>
+
+                <input
+                  type="text"
+                  className="w-full rounded-xl border border-slate-300 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={requestClub}
+                  onChange={(e) => setRequestClub(e.target.value)}
+                  placeholder="Nombre del club"
+                />
+              </div>
             </div>
 
             <div>
@@ -299,14 +355,15 @@ function LoginPage() {
               </label>
 
               <select
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
                 value={requestRole}
                 onChange={(e) => setRequestRole(e.target.value)}
               >
+                <option value="">Selecciona un rol</option>
                 <option value="COORDINADOR">Coordinador</option>
                 <option value="TESORERO">Tesorero</option>
+                <option value="ADMIN">Admin</option>
                 <option value="OWNER">Owner</option>
-                <option value="ADMIN  ">Admin</option>
               </select>
             </div>
 
@@ -316,8 +373,8 @@ function LoginPage() {
               </label>
 
               <textarea
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                rows="3"
+                className="w-full rounded-xl border border-slate-300 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                rows="2"
                 value={requestMessage}
                 onChange={(e) => setRequestMessage(e.target.value)}
                 placeholder="Explica brevemente por qué necesitas acceso"
@@ -326,15 +383,16 @@ function LoginPage() {
 
             <button
               type="submit"
-              className="w-full rounded-xl bg-blue-700 text-white font-bold py-3 hover:bg-blue-800 transition select-none"
+              disabled={loading}
+              className="w-full rounded-xl bg-blue-700 text-white font-bold py-2.5 hover:bg-blue-800 disabled:opacity-60 transition select-none"
             >
-              Enviar solicitud
+              {loading ? "Enviando..." : "Enviar solicitud"}
             </button>
 
             <button
               type="button"
               onClick={() => changeMode("login")}
-              className="w-full rounded-xl border border-slate-300 text-slate-700 font-bold py-3 hover:bg-slate-50 transition select-none"
+              className="w-full rounded-xl border border-slate-300 text-slate-700 font-bold py-2.5 hover:bg-slate-50 transition select-none"
             >
               Volver al login
             </button>
