@@ -54,15 +54,23 @@ function MonthlyChart({
       dias.push({
         fecha: fechaISO,
         fechaLabel: formatearFechaCorta(fechaISO),
-        ingresosJugadores: 0,
         ingresosClub: 0,
         gastos: 0,
+        pagosJugadores: 0,
       });
 
       fechaActual.setDate(fechaActual.getDate() + 1);
     }
 
     return dias;
+  };
+
+  const esPagoJugador = (transaccion) => {
+    return (
+      transaccion.categoria === "CUOTA_JUGADOR" ||
+      transaccion.origen === "JUGADOR" ||
+      transaccion.tipoOrigen === "JUGADOR"
+    );
   };
 
   const obtenerGraficoDiario = (meses) => {
@@ -80,18 +88,20 @@ function MonthlyChart({
         return;
       }
 
-      const cantidad = Number(transaccion.cantidad) || 0;
+      const cantidad = Number(transaccion.cantidad ?? transaccion.importe ?? 0);
 
-      if (transaccion.tipo === "GASTO") {
-        diasMap[fecha].gastos += cantidad;
+      if (transaccion.tipo === "RETIRO" || transaccion.tipo === "GASTO") {
+        diasMap[fecha].gastos += Math.abs(cantidad);
+        return;
       }
 
-      if (transaccion.tipo === "INGRESO" && transaccion.origen === "JUGADOR") {
-        diasMap[fecha].ingresosJugadores += cantidad;
+      if (transaccion.tipo === "INGRESO" && esPagoJugador(transaccion)) {
+        diasMap[fecha].pagosJugadores += Math.abs(cantidad);
+        return;
       }
 
-      if (transaccion.tipo === "INGRESO" && transaccion.origen !== "JUGADOR") {
-        diasMap[fecha].ingresosClub += cantidad;
+      if (transaccion.tipo === "INGRESO") {
+        diasMap[fecha].ingresosClub += Math.abs(cantidad);
       }
     });
 
@@ -114,9 +124,9 @@ function MonthlyChart({
           <p className="text-sm text-slate-500">
             {esGraficoDiario
               ? rangoMeses === 1
-                ? "Ingresos y gastos diarios del mes actual."
-                : "Ingresos y gastos diarios de los últimos 3 meses."
-              : "Comparativa mensual de ingresos por jugadores, ingresos del club y gastos."}
+                ? "Ingresos, gastos y pagos de jugadores del mes actual."
+                : "Ingresos, gastos y pagos de jugadores de los últimos 3 meses."
+              : "Comparativa mensual de ingresos, gastos y pagos de jugadores."}
           </p>
         </div>
 
@@ -150,7 +160,7 @@ function MonthlyChart({
         >
           <ResponsiveContainer width="100%" height="100%">
             {esGraficoDiario ? (
-              <BarChart data={dataDiaria} barCategoryGap="20%">
+              <BarChart data={dataDiaria} barCategoryGap="25%">
                 <CartesianGrid strokeDasharray="3 3" />
 
                 <XAxis
@@ -168,20 +178,22 @@ function MonthlyChart({
                 <Legend />
 
                 <Bar
-                  dataKey="ingresosJugadores"
-                  name="Jugadores"
-                  stackId="ingresos"
-                  fill="#2563eb"
-                />
-
-                <Bar
                   dataKey="ingresosClub"
-                  name="Club"
-                  stackId="ingresos"
+                  name="Ingresos club"
                   fill="#16a34a"
                 />
 
-                <Bar dataKey="gastos" name="Gastos" fill="#ea580c" />
+                <Bar
+                  dataKey="gastos"
+                  name="Gastos"
+                  fill="#ea580c"
+                />
+
+                <Bar
+                  dataKey="pagosJugadores"
+                  name="Pagos jugadores"
+                  fill="#2563eb"
+                />
               </BarChart>
             ) : (
               <LineChart data={graficoData}>
@@ -193,22 +205,12 @@ function MonthlyChart({
 
                 <Line
                   type="monotone"
-                  dataKey="ingresosJugadores"
-                  stroke="#2563eb"
-                  strokeWidth={3}
-                  dot={{ r: 4 }}
-                  activeDot={{ r: 6 }}
-                  name="Jugadores"
-                />
-
-                <Line
-                  type="monotone"
                   dataKey="ingresosClub"
                   stroke="#16a34a"
                   strokeWidth={3}
                   dot={{ r: 4 }}
                   activeDot={{ r: 6 }}
-                  name="Club"
+                  name="Ingresos club"
                 />
 
                 <Line
@@ -219,6 +221,16 @@ function MonthlyChart({
                   dot={{ r: 4 }}
                   activeDot={{ r: 6 }}
                   name="Gastos"
+                />
+
+                <Line
+                  type="monotone"
+                  dataKey="pagosJugadores"
+                  stroke="#2563eb"
+                  strokeWidth={3}
+                  dot={{ r: 4 }}
+                  activeDot={{ r: 6 }}
+                  name="Pagos jugadores"
                 />
               </LineChart>
             )}

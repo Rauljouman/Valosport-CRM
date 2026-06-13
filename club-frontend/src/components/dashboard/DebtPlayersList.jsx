@@ -1,5 +1,13 @@
 import { formatoEuros } from "../../utils/formatters";
 
+const formatearFecha = (fecha) => {
+  if (!fecha) return "Sin fecha";
+
+  const fechaLimpia = fecha.split("T")[0];
+  const [year, month, day] = fechaLimpia.split("-");
+
+  return `${day}/${month}/${year}`;
+};
 function DebtPlayersList({
   jugadoresConDeuda,
   loadingJugadores,
